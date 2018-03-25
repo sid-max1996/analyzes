@@ -1,0 +1,1 @@
+module.exports.getBdPasswordByLogin = login => 'bdpassword';

@@ -1,0 +1,16 @@
+{
+  "name": "analyzes",
+  "description": "this app is a service to work with analyzes",
+  "main": "server.js",
+  "authors": [
+    "sid-max1996"
+  ],
+  "license": "ISC",
+  "ignore": [
+    "node_modules",
+    "bower_components"
+  ],
+  "dependencies": {
+    "bootstrap": "^4.0.0"
+  }
+}
