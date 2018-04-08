@@ -1,0 +1,25 @@
+<div id="login">
+    <div class="container">
+        <div class="form-signin">
+            <div class="col-10 col-sm-8">
+                <div class="row">
+                    <h2 class="form-heading">Вход</h2>
+                    <input type="text" v-model="loginComputed" class="form-control" placeholder="Логин" name="login">
+                    <input type="password" v-model="passwordComputed" class="form-control" placeholder="Пароль" name="password">
+                    <label class="checkbox">
+              <input type="checkbox" v-model="isRememberComputed" value="remember-me"> Запомнить
+            </label>
+                </div>
+                <div class="row">
+                    <button v-on:click="doEntry" class="btn btn-large btn-primary" type="submit">Войти</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- <div>
+        <h3>Введенная информация</h3>
+        <p>Логин: {{login}}</p>
+        <p>Пароль: {{password}}</p>
+        <p>Чекбокс: {{isRemember}}</p>
+    </div> -->
+</div>

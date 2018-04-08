@@ -2,115 +2,95 @@ const http = require("http");
 const path = require("path");
 const express = require("express");
 const hbs = require("express-hbs");
-const bodyParser = require("body-parser");
+
 // var firebird = require('node-firebird');
 // var events = require('events');
 // var util = require('util');
 // var fs = require('fs');
 
-const protect = require("./modules/protect.js");
-const user = require("./modules/user.js");
-const bd = require("./modules/bd.js");
+const log = require('./modules/log')(module);
+const config = require('./config');
+const HttpError = require('./modules/error').HttpError;
 
 const app = express();
-const urlencodedParser = bodyParser.urlencoded({extended: false});
 
+//настройки
+global.appRoot = path.resolve(__dirname);
 app.set("view engine", "hbs");
 app.set('views', __dirname + '/views');
 app.engine('hbs', hbs.express4({
     partialsDir: __dirname + '/views/partials'
 }));
 
-app.use(express.static(path.join(__dirname, 'public')));
+//журналирование
+switch (app.get('env')) {
+    case 'development':
+        app.use(require('morgan')('dev'));
+        break;
+    case 'production':
+        app.use(require('express-logger')({
+            path: __dirname + '/log/requests.log'
+        }));
+        break;
+}
 
-app.get("/", function(req, res) { 
-    // response.render("home.hbs", {
-    //     title: "Страница Авторизации",
-    //     //body: new hbs.SafeString("<h1>Hello World{{contact}}</h1>"),
-    //     contact: 'Контакт'
-    // });
-    res.render("login.hbs", {
-        title: "Вход в систему"
+//middleware
+app.use(require('./middleware/sendHttpError'));
+app.use(require('./middleware/checkCluster'));
+app.use(require('cors')());
+
+//подключение обработчиков запросов
+require('./routes')(app);
+app.get('/fail', function(req, res) {
+    throw new HttpError(404);
+    process.nextTick(function() {
+        throw new Error('Бабах!');
     });
 });
+app.use(express.static(path.join(__dirname, 'public')));
 
-let checkHash = null;
-app.post("/api/secretkey", urlencodedParser, function(req, res) { 
-   let login = req.body.login;
-   if (!login) {
-        res.statusCode = 500; 
-        res.end("login was not sent");
-   }
-   res.setHeader("Content-Type", "application/json");
-   if (user.existByLogin(login)) {
-        let bdPassword = bd.getBdPasswordByLogin(login);
-        let userId = user.makeLocalStoradgeUser(login, bdPassword);
-        let [secretkey, hash] = protect.getSecretKey(userId + login);
-        protect.setCryptoUserSecretKeyAndHash(secretkey, hash);
-        checkHash = hash;
-        res.send({
-                secretkey: secretkey,
-                userId: userId
-            });
+//обработка ошибок
+app.use(function(err, req, res, next) {
+    if (typeof err == 'number') {
+        err = new HttpError(err);
     }
-    else {
-        console.log('login not exist');
-        res.statusCode = 500; 
-        res.end("login not exist");
+
+    if (err instanceof HttpError) {
+        log.error(err);
+        res.sendHttpError(err);
+    } else {
+        if (app.get('env') == 'development') {
+            log.error('server error: ' + err.message);
+            express.errorHandler()(err, req, res, next);
+        } else {
+            log.error(err);
+            err = new HttpError(500);
+            res.sendHttpError(err);
+        }
     }
 });
 
-app.post("/api/login", urlencodedParser, function(req, res) { 
-    if (!req.body.userId && !req.body.password && !req.body.hash) {
-         res.statusCode = 500; 
-         res.end("login was not sent");
-    }
-    let userId = req.body.userId;
-    if (user.existById(userId) && checkHash === req.body.hash) {
-        let login = user.getLoginById(userId);  
-        let secret = user.getSecretById(userId); 
-        let password = protect.decrypt(req.body.password, secret); 
-        if (protect.checkPasswordById(userId, password)) {
-            //установка значений для user, дать разрешение на вход
-            res.setHeader("Content-Type", "application/json");
-            let [secretkey, hash] = protect.getSecretKey(userId + login + password);       
-            checkHash = hash;
-            res.send({secretkey: secretkey});
-        }
-        else {
-            checkHash = null;
-            res.statusCode = 500; 
-            res.end("bad password");
-        }    
-    }
-    else {
-        console.log('id not exist');
-        res.statusCode = 500; 
-        res.end("id not exist");
-    }
- });
+//запуск сервера
+function startServer() {
+    const domain = require('domain').create();
 
-app.post("/api/checkuser", urlencodedParser, function(req, res) { 
-    if (!req.body.userId && !req.body.hash) {
-        res.statusCode = 500; 
-        res.end("login was not sent");
-    }
-    let userId = req.body.userId;
-    let login = user.getLoginById(userId);  
-    let password = user.getPasswordById(userId);
-    console.log(checkHash);
-    if (checkHash === req.body.hash) {
-        console.log('good hash');
-        res.setHeader("Content-Type", "application/json");
-        let [secretkey, hash] = protect.getSecretKey(userId + login + password);
-        checkHash = hash;
-        res.send({secretkey: secretkey});
-    }
-    else {
-        res.statusCode = 500; 
-        res.end("bad hash");
-    }
- });
+    domain.run(() => {
+        const server = http.createServer(app);
+        server.listen(config.get('port'), function() {
+            log.info(`Express server listening on port ${config.get('port')} in ${app.get('env')} mode`);
+        });
+    });
 
-const server = http.createServer(app);
-server.listen(3000, function(){});
+    domain.on('error', (err) => {
+        log.error(`ОШИБКА ДОМЕНА!!! \n ${err.stack}`);
+        log.error(' Отказобезопасный останов.');
+        process.exit(1);
+    });
+
+}
+
+if (require.main === module) {
+    startServer();
+} else {
+    module.exports = startServer;
+}

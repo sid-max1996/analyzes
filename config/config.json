@@ -1,0 +1,20 @@
+{
+    "port": 3000,
+    "rootDir": "C:\\Projects\\analyzes",
+    "logPath": "C:\\Projects\\analyzes\\log\\combined.log",
+    "authConfig": {
+        "maxAuthCount": 10,
+        "hoursLimit": 1
+    },
+    "mongoose": {
+        "uri": "mongodb://localhost/session",
+        "options": {
+            "socketTimeoutMS": 0,
+            "keepAlive": true,
+            "reconnectTries": 30
+        }
+    },
+    "fireburd": {
+        "maxPoolCount": 5
+    }
+}
