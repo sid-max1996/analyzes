@@ -1,36 +1,36 @@
-module.exports.SERVER_ADDRESS = 'http://localhost:3000/';
+exports.SERVER_ADDRESS = require('./config').serverAddr;
 
-module.exports.post = (url, requestuestBody) => {
-    return new Promise(function(succeed, fail) {
+exports.post = (url, requestuestBody) => {
+    return new Promise(function(resolve, reject) {
         var request = new XMLHttpRequest();
         request.open("POST", exports.SERVER_ADDRESS + url, true);
         request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         request.addEventListener("load", function() {
             if (request.status < 400)
-                succeed(request.responseText);
+                resolve(request.responseText);
             else
-                fail(new Error("Request failed: " + request.statusText));
+                reject(new Error("Request rejected: " + request.statusText));
         });
         request.addEventListener("error", function() {
-            fail(new Error("Network error"));
+            reject(new Error("Network error"));
         });
         request.send(requestuestBody);
     });
 }
 
-module.exports.json = (url, json) => {
-    return new Promise(function(succeed, fail) {
+exports.json = (url, json) => {
+    return new Promise(function(resolve, reject) {
         var request = new XMLHttpRequest();
         request.open("POST", exports.SERVER_ADDRESS + url, true);
         request.setRequestHeader('Content-type', 'application/json; charset=utf-8');
         request.addEventListener("load", function() {
             if (request.status < 400)
-                succeed(request.responseText);
+                resolve(request.responseText);
             else
-                fail(new Error("Request failed: " + request.statusText));
+                reject(new Error("Request rejected: " + request.statusText));
         });
         request.addEventListener("error", function() {
-            fail(new Error("Network error"));
+            reject(new Error("Network error"));
         });
         request.send(json);
     });

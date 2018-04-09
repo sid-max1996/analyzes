@@ -1,6 +1,5 @@
-const ajax = require('../../front_modules/ajax.js');
-const crypto = require('../../front_modules/crypto.js');
-console.log(crypto);
+const auth = require('../../front_modules/service/auth');
+
 export default {
     data() {
         return {
@@ -11,35 +10,10 @@ export default {
     },
     methods: {
         doEntry: function() {
-            let jsonObjSend = {
-                login: this.login
-            };
-            let jsonSend = JSON.stringify(jsonObjSend);
-            ajax.json("api/auth", jsonSend)
-                .then((json) => {
-                    console.log(`auth json: ${json}`);
-                    let jsonObj = JSON.parse(json);
-                    console.log(`authId = ${jsonObj.authId} password = ${this.password} secret = ${jsonObj.secret}`);
-                    return Promise.resolve({
-                        authId: jsonObj.authId,
-                        password: this.password,
-                        secret: jsonObj.secret
-                    });
-                })
-                .then((params) => {
-                    let { authId, password, secret } = params;
-                    let hashPass = crypto.encrypt(password, secret);
-                    let jsonObjSend = {
-                        authId: authId,
-                        hashPass: hashPass
-                    };
-                    let jsonSend = JSON.stringify(jsonObjSend);
-                    ajax.json("api/session", jsonSend).then((json) => {
-                        console.log(`session json: ${json}`);
-                        let jsonObj = JSON.parse(json);
-                        console.log(`success end`);
-                    }).catch(error => console.error(error));
-                })
+            auth.getAuthInfo(this.login, this.password)
+                .then(auth.getSessionInfo)
+                .then(auth.getAccess)
+                .then(auth.entryCabinet)
                 .catch(error => console.error(error));
         },
         setMethod: function(dataName) {

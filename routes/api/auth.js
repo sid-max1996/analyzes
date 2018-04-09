@@ -21,7 +21,7 @@ exports.getAuth = function(req, res, next) {
                     return next(new HttpError(406, err.message));
                 }
                 if (!result.user_id) {
-                    return next(new AuthError("Пользователя с таким именем не существует"));
+                    return next(new HttpError(406, "Пользователя с таким именем не существует"));
                 }
                 log.debug(result.user_id);
                 db.detach();
@@ -113,13 +113,14 @@ exports.getSession = function(req, res, next) {
 
 exports.getAccess = function(req, res, next) {
     let sessionId = req.body.sessionId;
-    let hashValue = req.body.hashValue;
+    let hashAccess = req.body.hashAccess;
     session.getUserById(sessionId, function(err, user) {
         if (err) {
             log.error(err.message);
             return next(err);
         }
-        let isAccess = hashValue === protect.makeHash(user.accessString, user.secret);
+        log.debug(`accessString = ${user.accessString} secret = ${user.secret}`);
+        let isAccess = hashAccess === protect.makeHash(user.accessString, user.secret);
         let secret = require("crypto").randomBytes(10).toString('hex');
         user.secret = secret;
         user.isAccess = isAccess;

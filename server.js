@@ -10,6 +10,7 @@ const hbs = require("express-hbs");
 
 const log = require('./modules/log')(module);
 const config = require('./config');
+const cookieParser = require('cookie-parser');
 const HttpError = require('./modules/error').HttpError;
 
 const app = express();
@@ -38,15 +39,10 @@ switch (app.get('env')) {
 app.use(require('./middleware/sendHttpError'));
 app.use(require('./middleware/checkCluster'));
 app.use(require('cors')());
+app.use(cookieParser());
 
 //подключение обработчиков запросов
 require('./routes')(app);
-app.get('/fail', function(req, res) {
-    throw new HttpError(404);
-    process.nextTick(function() {
-        throw new Error('Бабах!');
-    });
-});
 app.use(express.static(path.join(__dirname, 'public')));
 
 //обработка ошибок

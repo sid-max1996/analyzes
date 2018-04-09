@@ -5,9 +5,7 @@ const jsonParser = bodyParser.json();
 module.exports = function(app) {
     //SITE PART
     app.get("/", require('./site').getStartPage);
-    app.get("/session", jsonParser, require('./site').getSession);
-    app.get("/auth", require('./site').auth);
-    app.get("/mongo", require('./site').mongo);
+    app.get("/cabinet", require('./site').getCabinet);
 
     //API PART
     const api = require('express').Router();
