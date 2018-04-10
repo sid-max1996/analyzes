@@ -37,34 +37,35 @@ var schema = new Schema({
     }
 }, { versionKey: false });
 
-schema.statics.create = function(userData, callback) {
-    let User = this;
-    User.findOne({ id: userData.id }, function(err, user) {
-        log.debug(`findOne user = ${user}, err = ${err}`);
-        if (err) {
-            log.debug(`err = ${err}`);
-            callback(err);
-        }
+const createOrUpdateUser = ({ User, user }) => {
+    return new Promise((resolve, reject) => {
         if (user) {
-            User.findByIdAndUpdate(user._id, userData, function(err, user) {
-                if (err) {
-                    log.debug(`err = ${err}`);
-                    callback(err);
-                } else {
-                    User.findById(user._id, function(err, user) {
-                        if (err) {
-                            log.debug(`err = ${err}`);
-                            callback(err);
-                        } else {
-                            callback(null, user);
-                        }
-                    });
-                }
-            });
+            User.findByIdAndUpdate(user._id, user)
+                .then((user) => {
+                    User.findById(user._id)
+                        .then((user) => resolve(user))
+                        .catch(err => reject(err));
+                })
+                .catch(err => reject(err));
         } else {
-            let user = new User(userData);
-            user.save(callback);
+            let newUser = new User(user);
+            newUser.save().then((user) => resolve(user))
+                .catch(err => reject(err));
         }
+    });
+};
+
+schema.statics.create = function(user) {
+    return new Promise((resolve, reject) => {
+        let User = this;
+        User.findOne({ id: user.id })
+            .then((user) => Promise.resolve({ User: User, user: user }))
+            .then(createOrUpdateUser)
+            .then((user) => resolve(user))
+            .catch((err => {
+                log.error(err.message);
+                reject(err);
+            }));
     });
 };
 

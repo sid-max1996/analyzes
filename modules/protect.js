@@ -39,12 +39,14 @@ exports.getHashPassAndSalt = function(password, callback) {
     });
 }
 
-exports.getHashPassBySalt = function(password, salt, callback) {
-    var bcrypt = require('bcrypt');
-    const saltRounds = 10;
-    log.debug(`password = ${password}`);
-    bcrypt.hash(password, salt, function(err, hashPass) {
-        if (err) return callback(err);
-        callback(null, hashPass);
+exports.getHashPassBySalt = function({ password, salt }) {
+    return new Promise((resolve, reject) => {
+        var bcrypt = require('bcrypt');
+        const saltRounds = 10;
+        log.debug(`password = ${password}`);
+        bcrypt.hash(password, salt, function(err, hashPass) {
+            if (err) reject(err);
+            resolve(hashPass);
+        });
     });
 }

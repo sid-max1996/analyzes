@@ -20,3 +20,24 @@ class AuthError extends Error {
 
 AuthError.name = 'AuthError';
 exports.AuthError = AuthError;
+
+class AccessError extends Error {
+    constructor(message, isServerError = false) {
+        super(arguments);
+        this.message = message || "Error";
+        this.isServerError = isServerError;
+    }
+}
+
+AccessError.name = 'AccessError';
+exports.AccessError = AccessError;
+
+class SessionError extends Error {
+    constructor(message) {
+        super(arguments);
+        this.message = message || "Error";
+    }
+}
+
+SessionError.name = 'SessionError';
+exports.SessionError = SessionError;

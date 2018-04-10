@@ -1,87 +1,115 @@
 const usersDb = require(appRoot + '/modules/fireburd/users');
 const session = require(appRoot + '/modules/session');
+const AccessError = require(appRoot + '/modules/error').AccessError;
 const HttpError = require(appRoot + '/modules/error').HttpError;
+const SessionError = require(appRoot + '/modules/error').SessionError;
 const log = require(appRoot + '/modules/log')(module);
 
-module.exports.Access = class Access {
+const getDbPool = (obj) => {
+    return new Promise((resolve, reject) => {
+        const pool = usersDb.pool;
+        pool.get(function(err, db) {
+            if (err) {
+                log.error(err.message);
+                reject(new AccessError('Ошибка при получении pool бд', true));
+            }
+            resolve({ db: db, obj: obj });
+        });
+    });
+}
+
+const getRolesFromDb = ({ db, obj }) => {
+    return new Promise((resolve, reject) => {
+        let access = obj;
+        db.query('select role_id, role_name from roles', function(err, result) {
+            if (err) reject(new AccessError('Ошибка при извлечении списка ролей из бд', true));
+            for (let role of result)
+                access.rolesList.push(role);
+            db.detach();
+            resolve(access);
+        });
+    });
+}
+
+const isSessionAccess = function(user) {
+    return new Promise((resolve, reject) => {
+        if (user.isAuthorize && user.isAccess) {
+            user.isAccess = false;
+            let userId = user.id;
+            session.updateUser(user)
+                .then((user) => resolve(userId))
+                .catch((err) => reject(err));
+        } else
+            reject(new AccessError(`авторизован = ${user.isAuthorize} запрашивал доступ = ${user.isAccess}`));
+    });
+}
+
+const getUserRoleId = function({ db, obj }) {
+    return new Promise((resolve, reject) => {
+        userId = obj;
+        db.query(`select role_id from users where user_id = ${userId}`, function(err, result) {
+            if (err) log.error(err.message);
+            if (err || !result[0].role_id)
+                reject(new AccessError('Ошибка установления роли пользователя', true));
+            let roleId = result[0].role_id;
+            resolve({ db: db, roleId: roleId });
+        });
+    });
+}
+
+
+const getIsAccess = function({ db, roleId, actionName }) {
+    return new Promise((resolve, reject) => {
+        db.query(`execute procedure get_roleId_forAction('${actionName}')`, function(err, result) {
+            if (err) log.error(err.message);
+            if (err || !result.role_id)
+                reject(new AccessError('Ошибка установления роли действия', true));
+            let actionRoleId = result.role_id;
+            db.detach();
+            let isAccess = roleId >= actionRoleId;
+            log.debug(`actionRoleId = ${actionRoleId} roleId = ${roleId} isAccess = ${isAccess}`);
+            resolve({ isAccess: isAccess, roleId: roleId });
+        });
+    });
+}
+
+exports.Access = class Access {
     constructor() {
-        this.rolesList = [];
         return new Promise((resolve, reject) => {
+            this.rolesList = [];
             log.debug('Access constructor');
-            const pool = usersDb.pool;
-            let self = this;
-            pool.get(function(err, db) {
-                if (err) {
+            getDbPool(this)
+                .then(getRolesFromDb)
+                .then((access) => resolve(access))
+                .catch(err => {
                     log.error(err.message);
                     reject(err);
-                }
-                db.query('select role_id, role_name from roles', function(err, result) {
-                    if (err) {
-                        log.error(err.message);
-                        reject(new HttpError(500, 'Ошибка сервера при обращении к базе данных'));
-                    }
-                    log.debug(result.length);
-                    for (let role of result) {
-                        log.debug(role);
-                        self.rolesList.push(role);
-                    }
-                    db.detach();
-                    resolve(self);
                 });
-            });
         });
     }
 
-    isAccess(sessionId, userId, actionName) {
+    isAccess(sessionId, actionName) {
         return new Promise((resolve, reject) => {
             log.debug('isAccess');
-            session.getUserById(sessionId, function(err, user) {
-                if (err) {
+            session.getUserById(sessionId)
+                .then(isSessionAccess)
+                .then(getDbPool)
+                .then(getUserRoleId)
+                .then(({ db, roleId }) =>
+                    Promise.resolve({
+                        db: db,
+                        roleId: roleId,
+                        actionName: actionName
+                    }))
+                .then(getIsAccess)
+                .then((resObj) => resolve(resObj))
+                .catch((err) => {
                     log.error(err.message);
-                    reject(new HttpError(500, 'Ошибка сервера при обращении к базе данных'));
-                }
-                if (user.isAccess && user.isAuthorize) {
-                    user.isAccess = false;
-                    session.updateUser(user, function(err, user) {
-                        if (err) {
-                            log.error(err.message);
-                            reject(new HttpError(500, 'Ошибка сервера при обращении к базе данных'));
-                        }
-                        const pool = usersDb.pool;
-                        pool.get(function(err, db) {
-                            if (err) {
-                                log.error(err.message);
-                                reject(err);
-                            }
-                            db.query(`select role_id from users where user_id = ${userId}`, function(err, result) {
-                                if (err) {
-                                    log.error(err.message);
-                                    reject(new HttpError(500, 'Ошибка сервера при обращении к базе данных'));
-                                }
-                                if (!result[0].role_id) {
-                                    reject(new HttpError(406, "Не удалось установить уровень доступа"));
-                                }
-                                let roleId = result[0].role_id;
-                                log.debug(`roleId = ${roleId}`);
-                                db.query(`execute procedure get_roleid_foraction('${actionName}')`, function(err, result) {
-                                    if (err) {
-                                        log.error(err.message);
-                                        reject(new HttpError(500, 'Ошибка сервера при обращении к базе данных'));
-                                    }
-                                    if (!result.role_id) {
-                                        reject(new HttpError(406, "Не удалось установить уровень доступа"));
-                                    }
-                                    let actionRoleId = result.role_id;
-                                    log.debug(`actionRoleId = ${actionRoleId}`);
-                                    db.detach();
-                                    let isAccess = roleId >= actionRoleId;
-                                    resolve({ isAccess: isAccess, roleId: roleId });
-                                });
-                            });
-                        });
-                    });
-                } else reject(new HttpError(406, 'Доступ запрещён'));
-            });
+                    if (err instanceof SessionError) {
+                        err = new HttpError(500, 'Ошибка Сессии');
+                    }
+                    reject(err);
+                });
         });
     }
 }

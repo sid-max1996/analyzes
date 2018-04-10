@@ -4,41 +4,48 @@ const User = require('./mongo/models/user').User;
 
 const getSecretKey = require('./protect').getSecretKey;
 const log = require('./log')(module);
+const SessionError = require(appRoot + '/modules/error').SessionError;
 
-exports.saveAuthInfo = (authData, callback) => {
-    log.debug('saveAuthInfo');
-    Auth.create(authData, callback);
-}
-
-exports.getAuthById = (authId, callback) => {
-    Auth.findById(authId, function(err, auth) {
-        if (err) {
-            log.error(err.message);
-            callback(err);
-        } else {
-            callback(null, auth);
-        }
+exports.saveAuthInfo = (auth) => {
+    return new Promise((resolve, reject) => {
+        log.debug('saveAuthInfo');
+        Auth.create(auth)
+            .then((auth) => { resolve(auth) })
+            .catch((err) => reject(new SessionError(err.message)));
     });
 }
 
-exports.authorize = (userData, callback) => {
-    const AuthError = require('./error').AuthError;
-    log.debug('authorize');
-    User.create(userData, callback);
+exports.getAuthById = (authId, callback) => {
+    return new Promise((resolve, reject) => {
+        Auth.findById(authId)
+            .then((auth) => resolve(auth))
+            .catch((err) => reject(new SessionError(err.message)));
+    });
 }
 
-exports.updateUser = (userData, callback) => {
-    User.findByIdAndUpdate(userData._id, userData, callback);
+exports.authorize = (user) => {
+    return new Promise((resolve, reject) => {
+        const AuthError = require('./error').AuthError;
+        log.debug('authorize');
+        User.create(user)
+            .then((user) => resolve(user))
+            .catch((err) => reject(new SessionError(err.message)));
+    });
 }
 
-exports.getUserById = (userId, callback) => {
-    log.debug(`userId = ${userId}`);
-    User.findById(userId, function(err, user) {
-        if (err) {
-            log.error(err.message);
-            callback(err);
-        } else {
-            callback(null, user);
-        }
+exports.updateUser = (user) => {
+    return new Promise((resolve, reject) => {
+        User.findByIdAndUpdate(user._id, user)
+            .then((user) => resolve(user))
+            .catch((err) => reject(new SessionError(err.message)));
+    });
+}
+
+exports.getUserById = (userId) => {
+    return new Promise((resolve, reject) => {
+        log.debug(`userId = ${userId}`);
+        User.findById(userId)
+            .then((user) => resolve(user))
+            .catch((err) => reject(new SessionError(err.message)));
     });
 }
