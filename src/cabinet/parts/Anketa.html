@@ -1,0 +1,21 @@
+<div>
+    <label>Имя</label>
+    <input type="text" v-model="firstName" placeholder="Введите имя" class="form-control" /><br>
+    <label>Фамилия</label>
+    <input type="text" v-model="secondName" placeholder="Введите фамилию" class="form-control" /><br>
+    <label>Номер телефона</label>
+    <input type="text" v-model="phone" placeholder="Введите телефон" class="form-control" /><br>
+    <label>Город</label>
+    <input type="text" v-model="city" placeholder="Введите город" class="form-control" /><br>
+    <label>Место работы</label>
+    <input type="text" v-model="workPlace" placeholder="Введите место работы" class="form-control" /><br>
+    <label>О себе</label>
+    <textarea v-model="aboutYourself" class="form-control"></textarea></br>
+    <label>Фото</label></br>
+    <input @change="photoSelect" ref="photo" type="file" id="photo" accept=".png, .jpg, .jpeg"></br>
+    <div v-show="errorCode != 0" class="alert alert-danger" role="alert">
+        {{errorText}}
+    </div>
+    <button @click="saveAnketa" type="button" class="btn btn-primary btn-lg saveButton">Сохранить</button>
+    <div class="clearfix"></div>
+</div>

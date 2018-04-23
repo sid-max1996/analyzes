@@ -1,0 +1,108 @@
+#logo {
+    color: #bfa3e6;
+    font-size: 25px;
+}
+
+#navbar1 {
+    font-size: 20px;
+}
+
+#userPanel {
+    text-align: center;
+}
+
+#userPanel li {
+    margin-left: 15px;
+    margin-bottom: 5px;
+}
+
+.messageUsPl {
+    position: relative;
+    margin-top: 5px;
+}
+
+.messageUsPl>i {
+    font-size: 30px;
+    color: #dedede;
+    padding-top: 5px;
+}
+
+.messageUsPl span {
+    font-weight: 700;
+    color: #e1e1f5;
+}
+
+.photoUsPl {
+    margin-top: 5px;
+}
+
+.photoUsPl>i {
+    font-size: 40px;
+    color: #905ec1;
+}
+
+@media screen and (max-width: 991px) {
+    .dayNightUsPl {
+        margin-left: calc(50% - 75px) !important;
+        margin-top: 10px;
+    }
+    #navbar1 {
+        text-align: center;
+    }
+}
+
+#logout i {
+    font-size: 20px;
+}
+
+#colorSwitch {
+    float: left;
+    margin-left: 5px;
+    margin-top: -25px;
+}
+
+.colorSwitchIcon {
+    font-size: 35px !important;
+    float: left;
+    margin-top: 10px;
+    margin-left: 5px;
+}
+
+#colorSwitch input[type=checkbox] {
+    height: 0;
+    width: 0;
+    visibility: hidden;
+}
+
+#colorSwitch label {
+    cursor: pointer;
+    background: grey;
+    text-indent: -9999px;
+    width: 90px;
+    height: 45px;
+    position: relative;
+    display: block;
+    border-radius: 50px;
+    margin-bottom: 0;
+}
+
+#colorSwitch label:after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 35px;
+    height: 35px;
+    background: #fff;
+    border-radius: 45px;
+    transition: 0.3s;
+}
+
+#colorSwitch input:checked+label {
+    background: #0b0214;
+}
+
+#colorSwitch input:checked+label:after {
+    left: calc(100% - 5px);
+    transform: translateX(-100%);
+}

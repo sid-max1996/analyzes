@@ -5,6 +5,7 @@ const log = require(appRoot + '/modules/log')(module);
 const HttpError = require(appRoot + '/modules/error').HttpError;
 const AuthError = require(appRoot + '/modules/error').AuthError;
 const SessionError = require(appRoot + '/modules/error').SessionError;
+const helper = require('../common/helper');
 
 const getDbPool = (obj) => {
     return new Promise((resolve, reject) => {
@@ -57,7 +58,6 @@ const getAuthAnswer = (authData) => {
     });
 };
 
-//exports.getAuth
 exports.getAuth = function(req, res, next) {
     let login = req.body.login;
     log.debug(`login = ${login}`);
@@ -133,7 +133,6 @@ const checkCryptoPass = ({ hashPass, passForCheck, auth }) => {
     });
 }
 
-//exports.getSession
 exports.getSession = function(req, res, next) {
     let authId = req.body.authId;
     let hashPass = req.body.hashPass;
@@ -163,6 +162,7 @@ exports.getSession = function(req, res, next) {
 const isGiveAccess = ({ user, hashAccess }) => {
     return new Promise((resolve, reject) => {
         log.debug(`accessString = ${user.accessString} secret = ${user.secret}`);
+        log.debug(`hash = ${protect.makeHash(user.accessString, user.secret)}`);
         let isAccess = hashAccess === protect.makeHash(user.accessString, user.secret);
         let secret = require("crypto").randomBytes(10).toString('hex');
         user.secret = secret;
@@ -171,7 +171,6 @@ const isGiveAccess = ({ user, hashAccess }) => {
     });
 };
 
-//exports.getAccess
 exports.getAccess = function(req, res, next) {
     let sessionId = req.body.sessionId;
     let hashAccess = req.body.hashAccess;
@@ -181,7 +180,7 @@ exports.getAccess = function(req, res, next) {
         .then(session.updateUser)
         .then((user) =>
             res.json({
-                isAccess: user.isAccess,
+                isSuccess: user.isAccess,
                 secret: user.secret
             }))
         .catch((err) => {
@@ -189,4 +188,42 @@ exports.getAccess = function(req, res, next) {
             if (err instanceof SessionError) err = new HttpError(500, 'Ошибка Сессии');
             return next(err);
         });
+}
+
+exports.doLogout = function(req, res, next) {
+    let sessionId = req.body.sessionId;
+    helper.checkAccess(sessionId, true)
+        .then(() => {
+            return new Promise((resolve, reject) => {
+                session.getUserById(sessionId)
+                    .then((user) => {
+                        user.isAuthorize = false;
+                        resolve(user);
+                    })
+                    .catch((err) => reject(err));
+            });
+        })
+        .then(session.updateUser)
+        .then((user) => {
+            res.json({
+                isSuccess: !user.isAuthorize
+            });
+        })
+        .catch((err) => next(err));
+}
+
+exports.doLogin = function(req, res, next) {
+    let sessionId = req.body.sessionId;
+    session.getUserById(sessionId)
+        .then((user) => {
+            user.isAuthorize = true;
+            return Promise.resolve(user);
+        })
+        .then(session.updateUser)
+        .then((user) => {
+            res.json({
+                isSuccess: user.isAuthorize
+            });
+        })
+        .catch((err) => next(err));
 }

@@ -36,7 +36,11 @@ exports.authorize = (user) => {
 exports.updateUser = (user) => {
     return new Promise((resolve, reject) => {
         User.findByIdAndUpdate(user._id, user)
-            .then((user) => resolve(user))
+            .then((user) => {
+                User.findById(user._id)
+                    .then((user) => resolve(user))
+                    .catch(err => reject(err));
+            })
             .catch((err) => reject(new SessionError(err.message)));
     });
 }

@@ -34,6 +34,10 @@ var schema = new Schema({
     created: {
         type: Date,
         default: Date.now
+    },
+    isDarkScheme: {
+        type: Boolean,
+        default: false
     }
 }, { versionKey: false });
 

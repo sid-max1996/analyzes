@@ -1,0 +1,20 @@
+<div id="commandsSlideDiv" class="col-2 col-sm-1">
+
+    <div class="bootstrap-vertical-nav">
+
+        <button id="commandsSlideBtn" class="btn btn-primary hidden-md-up" type="button" data-toggle="collapse" data-target="#commandsCollapse"
+            aria-expanded="false" aria-controls="collapseExample">
+            <span class="">Комманды</span>
+        </button>
+
+        <div id="commandsCollapse" class="collapse">
+            <ul class="nav flex-column" id="exCollapsingNavbar3">
+                {{#each commandsList}}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{this.href}}">{{this.name}}</a>
+                </li>
+                {{/each}}
+            </ul>
+        </div>
+
+    </div>

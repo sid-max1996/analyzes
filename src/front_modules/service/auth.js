@@ -44,6 +44,7 @@ exports.getSessionInfo = function({ authId, password, secret }) {
 exports.getAccess = function({ sessionId, accessString, secret }) {
     return new Promise(function(resolve, reject) {
         let hashAccess = crypto.makeHash(accessString, secret);
+        console.log(`hashAccess = ${hashAccess}`);
         let jsonObjSend = {
             sessionId: sessionId,
             hashAccess: hashAccess
@@ -61,12 +62,72 @@ exports.getAccess = function({ sessionId, accessString, secret }) {
     });
 }
 
+exports.doLogin = function(sessionId) {
+    return new Promise(function(resolve, reject) {
+        let jsonObjSend = {
+            sessionId: sessionId
+        };
+        let jsonSend = JSON.stringify(jsonObjSend);
+        ajax.json("api/login", jsonSend)
+            .then((json) => {
+                console.log(`login json: ${json}`);
+                let jsonObj = JSON.parse(json);
+                resolve(jsonObj);
+            })
+            .catch(error => console.error(error));
+    });
+}
+
 exports.entryCabinet = function(accessInfo) {
-    console.log(accessInfo);
-    document.cookie = "sessionId=" + accessInfo.sessionId;
-    sessionStorage.setItem('sessionId', accessInfo.sessionId.toString());
-    sessionStorage.setItem('accessString', accessInfo.accessString.toString());
-    sessionStorage.setItem('secret', accessInfo.secret.toString());
-    window.location.replace(ajax.SERVER_ADDRESS + 'cabinet');
-    console.log(`success end`);
+    exports.doLogin(accessInfo.sessionId)
+        .then(() => {
+            console.log(accessInfo);
+            document.cookie = "sessionId=" + accessInfo.sessionId;
+            sessionStorage.setItem('sessionId', accessInfo.sessionId.toString());
+            sessionStorage.setItem('accessString', accessInfo.accessString.toString());
+            sessionStorage.setItem('secret', accessInfo.secret.toString());
+            window.location.replace(ajax.SERVER_ADDRESS + 'cabinet');
+            console.log(`success end`);
+        })
+        .catch((err) => concole.log(err));
+}
+
+exports.getSessionStorageData = function() {
+    return {
+        sessionId: sessionStorage.getItem('sessionId'),
+        accessString: sessionStorage.getItem('accessString'),
+        secret: sessionStorage.getItem('secret')
+    };
+}
+
+exports.nextAccess = function() {
+    return new Promise(function(resolve, reject) {
+        let getAccessData = exports.getSessionStorageData();
+        exports.getAccess(getAccessData)
+            .then((data) => {
+                return new Promise((resolve, reject) => {
+                    if (data.sessionId && data.secret)
+                        resolve(data);
+                    else reject(new Error('there is no new secret for save'));
+                });
+            })
+            .then((data) => {
+                sessionStorage.setItem('secret', data.secret.toString());
+                resolve(data.sessionId);
+            })
+            .catch(error => reject(error));
+    });
+}
+
+exports.doLogout = function(sessionId) {
+    let jsonObjSend = {
+        sessionId: sessionId
+    };
+    let jsonSend = JSON.stringify(jsonObjSend);
+    ajax.json("api/logout", jsonSend)
+        .then((json) => {
+            console.log(`logout json: ${json}`);
+            window.location.replace(ajax.SERVER_ADDRESS);
+        })
+        .catch(error => console.error(error));
 }

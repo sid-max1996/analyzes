@@ -1,0 +1,33 @@
+#commandsSlideDiv {
+    padding-left: 0;
+}
+
+#commandsSlideBtn {
+    text-align: center;
+    white-space: nowrap;
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    transform: rotate(90deg);
+    margin-top: 50px;
+    margin-left: 0;
+    margin-left: -35px;
+}
+
+#commandsCollapse {
+    margin-top: 50px;
+    margin-left: -10px;
+    min-width: 140px;
+}
+
+#commandsCollapse a {
+    cursor: pointer;
+    color: #007bff !important;
+}
+
+@media screen and (max-width: 991px) {
+    #commandsCollapse {
+        font-size: 9px;
+    }
+}

@@ -31,9 +31,9 @@ const getRolesFromDb = ({ db, obj }) => {
     });
 }
 
-const isSessionAccess = function(user) {
+const isSessionAccess = function({ user, isAccessCheck }) {
     return new Promise((resolve, reject) => {
-        if (user.isAuthorize && user.isAccess) {
+        if ((!isAccessCheck && user.isAuthorize) || (user.isAuthorize && user.isAccess)) {
             user.isAccess = false;
             let userId = user.id;
             session.updateUser(user)
@@ -74,7 +74,8 @@ const getIsAccess = function({ db, roleId, actionName }) {
 }
 
 exports.Access = class Access {
-    constructor() {
+    constructor(isAccessCheck = true) {
+        this.isAccessCheck = isAccessCheck;
         return new Promise((resolve, reject) => {
             this.rolesList = [];
             log.debug('Access constructor');
@@ -92,6 +93,12 @@ exports.Access = class Access {
         return new Promise((resolve, reject) => {
             log.debug('isAccess');
             session.getUserById(sessionId)
+                .then((user) => {
+                    if (!user)
+                        return Promise.reject(new SessionError('user not find'));
+                    else
+                        return Promise.resolve({ user: user, isAccessCheck: this.isAccessCheck })
+                })
                 .then(isSessionAccess)
                 .then(getDbPool)
                 .then(getUserRoleId)
