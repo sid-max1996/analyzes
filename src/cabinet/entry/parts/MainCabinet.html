@@ -1,0 +1,5 @@
+<MainTemplate :menuInfo="menuInfo" :commandsInfo="commandsInfo" @commandChange="changeCommand">
+    <Cabinet v-if="commandsInfo.commandIndex == 0" :cabinetInfo="cabinetInfo"></Cabinet>
+    <Anketa v-else-if="commandsInfo.commandIndex == 1" :anketaInfo="anketaInfo"></Anketa>
+    <Settings v-else-if="commandsInfo.commandIndex == 2" :settingsInfo="settingsInfo"></Settings>
+</MainTemplate>
