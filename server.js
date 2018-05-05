@@ -2,18 +2,19 @@ const http = require("http");
 const path = require("path");
 const express = require("express");
 const hbs = require("express-hbs");
-
-// var firebird = require('node-firebird');
-// var events = require('events');
-// var util = require('util');
-// var fs = require('fs');
-
 const log = require('./modules/log')(module);
 const config = require('./config');
 const cookieParser = require('cookie-parser');
 const HttpError = require('./modules/error').HttpError;
+const bodyParser = require('body-parser');
+const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 const app = express();
+
+//hbs helpers
+hbs.registerHelper("getServerAddr", () => {
+    return `${config.get('serverAddr')}:${config.get('port')}`;
+});
 
 //настройки
 global.appRoot = path.resolve(__dirname);
@@ -40,6 +41,7 @@ app.use(require('./middleware/sendHttpError'));
 app.use(require('./middleware/checkCluster'));
 app.use(require('cors')());
 app.use(cookieParser());
+app.use(bodyParser.json({ limit: '5mb' }));
 
 //подключение обработчиков запросов
 require('./routes')(app);

@@ -1,0 +1,16 @@
+<div ref="modalBox" class="modal" :class="showClass">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{title}}</h4>
+                <button type="button" class="close" @click="doClose">×</button>
+            </div>
+            <div class="modal-body">
+                {{text}}
+            </div>
+            <div class="modal-footer">
+                <button v-show="btnText!=null" type="button" class="btn btn-default" @click="btnClick">{{btnText}}</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,5 +1,5 @@
-const ajax = require('../ajax.js');
-const crypto = require('../crypto.js');
+const ajax = require('./src/ajax.js');
+const crypto = require('./src/crypto.js');
 
 exports.getAuthInfo = function(login, password) {
     return new Promise(function(resolve, reject) {
@@ -83,27 +83,27 @@ exports.entryCabinet = function(accessInfo) {
         .then(() => {
             console.log(accessInfo);
             document.cookie = "sessionId=" + accessInfo.sessionId;
-            sessionStorage.setItem('sessionId', accessInfo.sessionId.toString());
-            sessionStorage.setItem('accessString', accessInfo.accessString.toString());
-            sessionStorage.setItem('secret', accessInfo.secret.toString());
+            localStorage.setItem('sessionId', accessInfo.sessionId.toString());
+            localStorage.setItem('accessString', accessInfo.accessString.toString());
+            localStorage.setItem('secret', accessInfo.secret.toString());
             window.location.replace(ajax.SERVER_ADDRESS + 'cabinet');
             console.log(`success end`);
         })
         .catch((err) => concole.log(err));
 }
 
-exports.getSessionStorageData = function() {
+const getAccessData = function() {
     return {
-        sessionId: sessionStorage.getItem('sessionId'),
-        accessString: sessionStorage.getItem('accessString'),
-        secret: sessionStorage.getItem('secret')
+        sessionId: localStorage.getItem('sessionId'),
+        accessString: localStorage.getItem('accessString'),
+        secret: localStorage.getItem('secret')
     };
 }
 
 exports.nextAccess = function() {
     return new Promise(function(resolve, reject) {
-        let getAccessData = exports.getSessionStorageData();
-        exports.getAccess(getAccessData)
+        let accessData = getAccessData();
+        exports.getAccess(accessData)
             .then((data) => {
                 return new Promise((resolve, reject) => {
                     if (data.sessionId && data.secret)
@@ -112,7 +112,7 @@ exports.nextAccess = function() {
                 });
             })
             .then((data) => {
-                sessionStorage.setItem('secret', data.secret.toString());
+                localStorage.setItem('secret', data.secret.toString());
                 resolve(data.sessionId);
             })
             .catch(error => reject(error));

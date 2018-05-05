@@ -1,0 +1,15 @@
+<div>
+    <label>Имя пользователя</label>
+    <input type="text" v-model="userName" placeholder="Введите имя пользователя" class="form-control" /><br>
+    <label>Роль</label><br>
+    <select v-model="selectedRole" class="selectpicker">
+        <option v-for="role in roles" v-bind:value="role">{{role.title}}</option>
+    </select><br><br>
+    <label>Пароль</label>
+    <input type="text" v-model="password" placeholder="Введите пароль" class="form-control" /><br>
+    <label>Почта</label>
+    <input type="text" v-model="email" placeholder="Введите электронную почту" class="form-control" /><br>
+    <Alert :show="isAlert" :info="alertInfo" :text="alertText"></Alert>
+    <button @click="addUser" type="button" class="btn btn-primary btn-lg saveButton">Сохранить</button>
+    <div class="clearfix"></div>
+</div>

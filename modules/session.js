@@ -4,7 +4,7 @@ const User = require('./mongo/models/user').User;
 
 const getSecretKey = require('./protect').getSecretKey;
 const log = require('./log')(module);
-const SessionError = require(appRoot + '/modules/error').SessionError;
+const SessionError = require('./error').SessionError;
 
 exports.saveAuthInfo = (auth) => {
     return new Promise((resolve, reject) => {
@@ -23,7 +23,7 @@ exports.getAuthById = (authId, callback) => {
     });
 }
 
-exports.authorize = (user) => {
+exports.doAuthorize = (user) => {
     return new Promise((resolve, reject) => {
         const AuthError = require('./error').AuthError;
         log.debug('authorize');

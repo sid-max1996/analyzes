@@ -5,7 +5,7 @@ const log = require(appRoot + '/modules/log')(module);
 const HttpError = require(appRoot + '/modules/error').HttpError;
 const AuthError = require(appRoot + '/modules/error').AuthError;
 const SessionError = require(appRoot + '/modules/error').SessionError;
-const helper = require('../common/helper');
+const helper = require(appRoot + '/modules/helper');
 
 const getDbPool = (obj) => {
     return new Promise((resolve, reject) => {
@@ -119,7 +119,7 @@ const checkCryptoPass = ({ hashPass, passForCheck, auth }) => {
                 accessString: accessString,
                 isAuthorize: true
             };
-            session.authorize(userData)
+            session.doAuthorize(userData)
                 .then((user) =>
                     resolve({
                         sessionId: user._id,

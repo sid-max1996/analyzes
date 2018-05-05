@@ -1,0 +1,13 @@
+<div>
+    <label>Почта</label>
+    <input type="text" v-model="contentInfo.email" placeholder="Введите электронную почту" class="form-control" /><br>
+    <label>Новый пароль</label>
+    <input @input="passErrorsCheck" type="password" v-model="password1" placeholder="Введите новый пароль" class="form-control" /><br>
+    <label>Подтверждение пароля</label>
+    <input @input="passErrorsCheck" type="password" v-model="password2" placeholder="Подтвердите пароль" class="form-control" /><br>
+    <label>Фото</label></br>
+    <input @change="photoSelect" ref="photo" type="file" id="photo" accept=".png, .jpg, .jpeg"></br>
+    <Alert :show="isAlert" :info="alertInfo" :text="alertText"></Alert>
+    <button @click="saveSettings" type="button" class="btn btn-primary btn-lg saveButton">Сохранить</button>
+    <div class="clearfix"></div>
+</div>

@@ -1,34 +1,40 @@
-const bodyParser = require("body-parser");
-const urlencodedParser = bodyParser.urlencoded({ extended: false });
-const jsonParser = bodyParser.json();
-
 module.exports = function(app) {
     //SITE PART
     app.get("/", require('./site').getStartPage);
-    app.get("/cabinet", require('./site').getCabinet);
+    app.get("/cabinet*", require('./site').getCabinet);
 
     //SESSION PART
     const session = require('express').Router();
     app.use("/session", session);
-    session.post("/setValue", jsonParser, require('./common/session').setValue);
-    session.post("/getValue", jsonParser, require('./common/session').getValue);
+    session.post("/setValue", require(appRoot + '/modules/storadge').setValue);
+    session.post("/getValue", require(appRoot + '/modules/storadge').getValue);
 
     //API PART
     const api = require('express').Router();
     app.use("/api", api);
     //auth part
-    api.post("/auth", jsonParser, require('./api/auth').getAuth);
-    api.post("/session", jsonParser, require('./api/auth').getSession);
-    api.post("/access", jsonParser, require('./api/auth').getAccess);
-    api.post("/login", jsonParser, require('./api/auth').doLogin);
-    api.post("/logout", jsonParser, require('./api/auth').doLogout);
-    //user part
-    api.post("/get/userData", jsonParser, require('./api/user').getUserData);
-    api.post("/get/userAnketa", jsonParser, require('./api/user').getUserAnketa);
-    api.post("/save/userAnketa", jsonParser, require('./api/user').saveUserAnketa);
-    api.post("/get/userSettings", jsonParser, require('./api/user').getUserSettings);
-    api.post("/save/userSettings", jsonParser, require('./api/user').saveUserSettings);
+    api.post("/auth", require('./api/auth').getAuth);
+    api.post("/session", require('./api/auth').getSession);
+    api.post("/access", require('./api/auth').getAccess);
+    api.post("/login", require('./api/auth').doLogin);
+    api.post("/logout", require('./api/auth').doLogout);
+    //info part
+    api.post("/role", require('./api/info').getRoleId);
+    api.post("/roleInfo", require('./api/info').getRoleInfo);
+    //cabinet part
+    api.post("/get/userCabinet", require('./api/cabinet').getCabinetData);
+    api.post("/get/userAnketa", require('./api/cabinet').getAnketaData);
+    api.post("/save/userAnketa", require('./api/cabinet').saveAnketaData);
+    api.post("/get/userSettings", require('./api/cabinet').getSettingsData);
+    api.post("/save/userSettings", require('./api/cabinet').saveSettingsData);
     //admin part
-    api.post("/add/user", jsonParser, require('./api/admin').addUser);
+    api.post("/users", require('./api/admin').getUsers);
+    api.post("/add/user", require('./api/admin').addUser);
+    api.post("/update/user", require('./api/admin').updateUser);
+    api.post("/remove/users", require('./api/admin').removeUsers);
+    //api.post("/add/user", require('./api/admin').addUser);
+
+    //option
+    api.post("/options/role", require('./api/info').getRoleOption)
 
 };

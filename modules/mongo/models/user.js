@@ -41,10 +41,10 @@ var schema = new Schema({
     }
 }, { versionKey: false });
 
-const createOrUpdateUser = ({ User, user }) => {
+const createOrUpdateUser = ({ User, oldUser, newUserObj }) => {
     return new Promise((resolve, reject) => {
-        if (user) {
-            User.findByIdAndUpdate(user._id, user)
+        if (oldUser) {
+            User.findByIdAndUpdate(oldUser._id, newUserObj)
                 .then((user) => {
                     User.findById(user._id)
                         .then((user) => resolve(user))
@@ -52,20 +52,20 @@ const createOrUpdateUser = ({ User, user }) => {
                 })
                 .catch(err => reject(err));
         } else {
-            let newUser = new User(user);
+            let newUser = new User(newUserObj);
             newUser.save().then((user) => resolve(user))
                 .catch(err => reject(err));
         }
     });
 };
 
-schema.statics.create = function(user) {
+schema.statics.create = function(newUserObj) {
     return new Promise((resolve, reject) => {
         let User = this;
-        User.findOne({ id: user.id })
-            .then((user) => Promise.resolve({ User: User, user: user }))
+        User.findOne({ id: newUserObj.id })
+            .then((oldUser) => Promise.resolve({ User: User, oldUser: oldUser, newUserObj: newUserObj }))
             .then(createOrUpdateUser)
-            .then((user) => resolve(user))
+            .then((resUser) => resolve(resUser))
             .catch((err => {
                 log.error(err.message);
                 reject(err);

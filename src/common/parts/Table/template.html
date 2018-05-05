@@ -1,0 +1,65 @@
+<div class="table-responsive text-center">
+    <ModalBox @btnClick="removeConfirm" @closeEvent="modalClose" :isShow="isShowModal" :btnText="btnText" :title="modalTitle" :text="modalText"></ModalBox>
+    <table ref="table" class="table table-striped table-bordered table-condensed table-hover">
+        <thead>
+            <tr class="bg-title">
+                <th>
+                    <select class="row-count" @change="rowChange($event)">
+                        <option v-for="count in countList" :value="count" :selected="curCount===count">
+                            {{count}}
+                        </option>
+                    </select>
+                </th>
+                <th class="commands">
+                    <router-link v-show="addLink!=''" :to="addLink">
+                        <i class="fas fa-user-plus add"></i>
+                    </router-link>
+                    <i class="fas fa-trash-o remove" @click="removeClick"></i>
+                </th>
+                <th v-for="item in info" :style="{'min-width': item.colMin}">{{item.colTitle}}</th>
+            </tr>
+            <tr class="bg-filter">
+                <th><input type="checkbox" @click="toggleAll"></th>
+                <th>
+                    <i class="fa fa-refresh refresh" @click="refreshClick($event)"></i>
+                    <i class="fa fa-window-close main-clear" @click="mainClearClick($event)"></i>
+                </th>
+                <th class="filter" v-for="(item, index) in info">
+                    <template v-if="item.filType=='input'">
+                        <input type="text" :style="{'max-width': item.filMax}" />
+                        <i class="fa fa-times clear" @click="clearClick($event)"></i>
+                    </template>
+                    <template v-else-if="item.filType=='select'">
+                        <select :style="{'min-width': item.filMax}">
+                            <option value=""></option>
+                            <option v-for="option in info[index].options" :value="option.value">{{option.title}}</option>
+                        </select>
+                    </template>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="(row, index) in data" :data-id="idList[index]">
+                <td><input type="checkbox" class="check-remove"></td>
+                <td class="commands">
+                    <i class="fas fa-edit edit" @click="editClick($event)"></i>
+                </td>
+                <td class="col" v-for="(col, ind) in row">
+                    <template v-if="info[ind].colType=='text'">
+                        {{col}}
+                    </template>
+                    <template v-else-if="info[ind].colType=='input'">
+                        <input type="text" :value="col" />
+                    </template>
+                    <template v-else-if="info[ind].colType=='select'">
+                        <select>
+                            <option v-for="option in info[ind].options" :value="option.value" :selected="col==option.value" >
+                                {{option.title}}
+                            </option>
+                        </select>
+                    </template>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

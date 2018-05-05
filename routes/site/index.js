@@ -1,5 +1,5 @@
 const log = require(appRoot + '/modules/log')(module);
-const helper = require('../common/helper');
+const helper = require(appRoot + '/modules/helper');
 const session = require(appRoot + '/modules/session');
 
 exports.getStartPage = function(req, res) {

@@ -1,0 +1,17 @@
+<div>
+    <label>Имя</label>
+    <input type="text" v-model="contentInfo.firstName" placeholder="Введите имя" class="form-control" /><br>
+    <label>Фамилия</label>
+    <input type="text" v-model="contentInfo.secondName" placeholder="Введите фамилию" class="form-control" /><br>
+    <label>Номер телефона</label>
+    <input type="text" v-model="contentInfo.phone" placeholder="Введите телефон" class="form-control" /><br>
+    <label>Город</label>
+    <input type="text" v-model="contentInfo.city" placeholder="Введите город" class="form-control" /><br>
+    <label>Место работы</label>
+    <input type="text" v-model="contentInfo.workPlace" placeholder="Введите место работы" class="form-control" /><br>
+    <label>О себе</label>
+    <textarea v-model="contentInfo.aboutYourself" class="form-control"></textarea></br>
+    <Alert :show="isAlert" :info="alertInfo" :text="alertText"></Alert>
+    <button @click="saveAnketa" type="button" class="btn btn-primary btn-lg saveButton">Сохранить</button>
+    <div class="clearfix"></div>
+</div>

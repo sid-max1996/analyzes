@@ -1,125 +1,118 @@
+const Command = require('../../../front_modules/front/command');
+const info = require('../../../front_modules/service/info');
+const methods = require('./source/methods');
+
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+import Vuex from 'vuex'
+Vue.use(VueRouter)
+Vue.use(Vuex)
+
 import MainTemplate from '../../../common/MainTemplate.vue'
 import Cabinet from '../../components/Cabinet.vue'
 import Anketa from '../../components/Anketa.vue'
 import Settings from '../../components/Settings.vue'
+import Admin from '../../components/Admin.vue'
+import AddUser from '../../components/AddUser.vue'
 
-const auth = require('../../../front_modules/service/auth');
-const user = require('../../../front_modules/service/user');
-const session = require('../../../front_modules/service/session');
-const helper = require('../../../front_modules/helper');
+const store = new Vuex.Store(require('./source/store'));
+const pathList = ['/cabinet', '/cabinet/anketa', '/cabinet/settings', '/cabinet/admin/:pageNum', '/cabinet/addUser'];
 
 export default {
     data() {
         return {
-            commandsInfo: {
-                commandIndex: 0,
-                commandsList: ["Профиль", "Анкета", "Настройки"]
-            },
-            menuInfo: {},
-            cabinetInfo: {},
-            anketaInfo: {},
-            settingsInfo: {},
+            command: new Command(['fetchCabinetInfo', 'fetchAnketaInfo', 'fetchSettingsInfo', 'fetchAdminInfo']),
+            roleId: 0,
+            commandsList: [
+                { path: pathList[0], title: "Профиль", roleId: 1 },
+                { path: pathList[1], title: "Анкета", roleId: 1 },
+                { path: pathList[2], title: "Настройки", roleId: 1 },
+                { path: pathList[3].replace(':pageNum', '1'), title: "Админка", roleId: 3 }
+            ],
+            menuInfo: {}
         };
     },
+    store,
     components: {
         'MainTemplate': MainTemplate,
         'Cabinet': Cabinet,
         'Anketa': Anketa,
-        'Settings': Settings
+        'Settings': Settings,
+        'Admin': Admin,
+        'AddUser': AddUser
     },
+    router: new VueRouter({
+        mode: 'history',
+        routes: [
+            { path: pathList[0], component: Cabinet },
+            { path: pathList[1], component: Anketa },
+            { path: pathList[2], component: Settings },
+            { path: pathList[3], component: Admin },
+            { path: pathList[4], component: AddUser },
+        ]
+    }),
     created: function() {
         this.fetchData();
     },
     methods: {
         fetchCabinetInfo: function() {
-            let self = this;
-            return new Promise((resolve, reject) => {
-                auth.nextAccess()
-                    .then(user.getUserData)
-                    .then((userData) => {
-                        self.cabinetInfo = {
-                            userName: userData.userName,
-                            roleName: userData.roleName,
-                            aboutYourself: helper.jsonNullFilter(userData.aboutYourself),
-                            photoPath: helper.jsonNullFilter(userData.photoPath),
-                            defaultPhotoPath: "img/profile.jpg"
-                        };
-                        resolve();
-                    })
-                    .catch((err) => reject(err));
-            });
+            return info.fetchStoreInfo(store, 'setCabinetInfo', methods.fetchCabinetInfo);
         },
         fetchAnketaInfo: function() {
-            let self = this;
-            return new Promise((resolve, reject) => {
-                auth.nextAccess()
-                    .then(user.getAnketaData)
-                    .then((anketaData) => {
-                        self.anketaInfo = {
-                            firstName: helper.jsonNullFilter(anketaData.firstName),
-                            secondName: helper.jsonNullFilter(anketaData.secondName),
-                            phone: helper.jsonNullFilter(anketaData.phone),
-                            city: helper.jsonNullFilter(anketaData.city),
-                            workPlace: helper.jsonNullFilter(anketaData.workPlace),
-                            aboutYourself: helper.jsonNullFilter(anketaData.aboutYourself)
-                        }
-                        resolve();
-                    })
-                    .catch((err) => reject(err));
-            });
+            return info.fetchStoreInfo(store, 'setAnketaInfo', methods.fetchAnketaInfo);
         },
         fetchSettingsInfo: function() {
-            let self = this;
-            return new Promise((resolve, reject) => {
-                auth.nextAccess()
-                    .then(user.getSettingsData)
-                    .then((settingsData) => {
-                        self.settingsInfo = { email: helper.jsonNullFilter(settingsData.email) };
-                        resolve();
-                    })
-                    .catch((err) => reject(err));
+            return info.fetchStoreInfo(store, 'setSettingsInfo', methods.fetchSettingsInfo);
+        },
+        fetchAdminInfo: function(params) {
+            let pageNum = 1;
+            let rowCount = store.state.default.rowCount;
+            let filter = null;
+            if (params) {
+                if (params.pageNum) pageNum = params.pageNum;
+                if (params.rowCount) rowCount = params.rowCount;
+                if (params.filter) filter = params.filter;
+            }
+            return info.fetchStoreInfo(store, 'setAdminInfo', methods.fetchAdminInfo, {
+                roleId: this.roleId,
+                pageNum: pageNum,
+                rowCount: rowCount,
+                filter: filter
             });
         },
-        fetchMenuInfo: function() {
+        fetchMainTemplateInfo: function() {
             let self = this;
             return new Promise((resolve, reject) => {
-                session.getValue('isDarkScheme')
-                    .then((jsonObj) => {
-                        self.menuInfo = { isDarkScheme: jsonObj.value };
+                info.getMainTemplateInfo()
+                    .then((resObj) => {
+                        self.menuInfo = { curItemInd: 0, isDarkScheme: resObj.menuInfo.isDarkScheme };
+                        self.roleId = resObj.commandsInfo.roleId;
                         resolve();
                     })
                     .catch((err) => reject(err));
             });
         },
         fetchData: function() {
-            this.fetchMenuInfo()
+            this.fetchMainTemplateInfo()
                 .then(this.fetchCabinetInfo)
+                .then(this.fetchAnketaInfo)
+                .then(this.fetchSettingsInfo)
+                .then(() => Promise.resolve({ pageNum: this.$route.params.pageNum }))
+                .then(this.fetchAdminInfo)
                 .then(() => console.log("success fetch data"))
                 .catch((err) => console.log(err));
         },
-        fetchDataByCommand: function(index) {
-            return new Promise((resolve, reject) => {
-                let getContentInfo = () => reject();
-                switch (index) {
-                    case 0:
-                        getContentInfo = this.fetchCabinetInfo;
-                        break;
-                    case 1:
-                        getContentInfo = this.fetchAnketaInfo;
-                        break;
-                    case 2:
-                        getContentInfo = this.fetchSettingsInfo;
-                        break;
-                };
-                getContentInfo()
-                    .then(() => resolve())
-                    .catch((err) => reject(err));
-            });
-        },
         changeCommand: function(index) {
-            this.commandsInfo.commandIndex = index;
-            this.fetchDataByCommand(index)
+            console.log(index);
+            Command.executeMethod(this, this.command, index)
                 .then(() => console.log("success fetch command data"))
+                .catch((err) => console.log(err));
+        },
+        changeData: function(index, params) {
+            console.log(index);
+            console.log(params);
+            Command.executeMethod(this, this.command, index, params)
+                .then(() => console.log("success change data"))
                 .catch((err) => console.log(err));
         }
     }

@@ -29,10 +29,10 @@ var schema = new Schema({
     }
 }, { versionKey: false });
 
-const createOrUpdateAuth = ({ Auth, auth }) => {
+const createOrUpdateAuth = ({ Auth, oldAuth, newAuthObj }) => {
     return new Promise((resolve, reject) => {
-        if (auth) {
-            Auth.findByIdAndUpdate(auth._id, auth)
+        if (oldAuth) {
+            Auth.findByIdAndUpdate(oldAuth._id, newAuthObj)
                 .then((auth) => {
                     Auth.findById(auth._id)
                         .then((auth) => resolve(auth))
@@ -40,20 +40,20 @@ const createOrUpdateAuth = ({ Auth, auth }) => {
                 })
                 .catch(err => reject(err));
         } else {
-            let newAuth = new User(auth);
+            let newAuth = new Auth(newAuthObj);
             newAuth.save().then((auth) => resolve(auth))
                 .catch(err => reject(err));
         }
     });
 };
 
-schema.statics.create = function(auth, callback) {
+schema.statics.create = function(newAuthObj, callback) {
     return new Promise((resolve, reject) => {
         let Auth = this;
-        Auth.findOne({ id: auth.id })
-            .then((auth) => Promise.resolve({ Auth: Auth, auth: auth }))
+        Auth.findOne({ id: newAuthObj.id })
+            .then((oldAuth) => Promise.resolve({ Auth: Auth, oldAuth: oldAuth, newAuthObj: newAuthObj }))
             .then(createOrUpdateAuth)
-            .then((auth) => resolve(auth))
+            .then((resAuth) => resolve(resAuth))
             .catch((err => {
                 log.error(err.message);
                 reject(err);

@@ -1,0 +1,15 @@
+<div class="bootstrap-vertical-nav">
+
+    <button id="commandsSlideBtn" class="btn btn-primary hidden-md-up" type="button" data-toggle="collapse" data-target="#commandsCollapse" aria-expanded="false" aria-controls="collapseExample">
+                <span class="">Команды</span>
+            </button>
+
+    <div id="commandsCollapse" class="collapse">
+        <ul class="nav flex-column" id="exCollapsingNavbar3">
+            <li v-for="(command, index) in filteredCommands" class="nav-item" @click="onCommandChange(index)">
+                <router-link class="nav-link" :to="command.path">{{command.title}}</router-link>
+            </li>
+        </ul>
+    </div>
+
+</div>

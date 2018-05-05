@@ -1,3 +1,3 @@
-<template src="./parts/Cabinet.html"></template>
-<style src="./parts/Cabinet.css"></style>
-<script src="./parts/Cabinet.js"></script>
+<template src="./parts/Cabinet/template.html"></template>
+<style src="./parts/Cabinet/style.css"></style>
+<script src="./parts/Cabinet/script.js"></script>
