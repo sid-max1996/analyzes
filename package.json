@@ -32,8 +32,7 @@
     "nodemonConfig": {
         "ignore": [
             "node_modules/*",
-            "db/*",
-            "src/*"
+            "source/*"
         ],
         "delay": "1000"
     },

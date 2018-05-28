@@ -1,0 +1,29 @@
+.addButton {
+    margin-left: calc(50% - 80px);
+    margin-bottom: 40px;
+    margin-top: 20px;
+}
+
+.members li {
+    list-style-type: none;
+    margin-bottom: 10px;
+}
+
+.btn-class {
+    color: #fff !important;
+    background-color: #236ebf;
+    border-color: #005cbf;
+}
+
+.btn-class :hover {
+    background-color: #1f5da0;
+}
+
+.bodyDark .btn-class {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.bodyDark .btn-class:hover {
+    background-color: #575d63;
+}

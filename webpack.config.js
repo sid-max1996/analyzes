@@ -1,8 +1,9 @@
 var path = require('path')
 var webpack = require('webpack')
 
+//login cabinet analyzes
 module.exports = {
-    entry: './src/cabinet/main.js',
+    entry: './source/cabinet/main.js',
     output: {
         path: path.resolve(__dirname, './public/js'),
         publicPath: '/public/js/',

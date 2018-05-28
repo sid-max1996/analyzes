@@ -1,4 +1,4 @@
-const log = require('../modules/log')(module);
+const log = require('../core/back/modules/log')(module);
 
 module.exports = function(req, res, next) {
     let cluster = require('cluster');

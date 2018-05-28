@@ -1,0 +1,58 @@
+<div class="add-analyzes-comp">
+    <ModalBox @btnClick="modalClose" @closeEvent="modalClose" :isShow="isShowModal" :btnText="btnText" :title="modalTitle" :text="modalText"></ModalBox>
+    <div style="margin-bottom: 20px;">
+        <label style="min-width: 100%">Анализ: </label><br>
+        <input type="text" v-model="newAnalName" placeholder="Введите название анализа" class="name-input" />
+        <button @click="addAnalyze" type="button" class="btn btn-primary">Добавить</button>
+    </div>
+    <div>
+        <span class="block" v-for="(el, ind) in analyzes">
+            {{el.name}}
+            <a class="btn btn-sm btn-danger" @click="removeAnalyze(el.analId)">Удалить</a>
+            <a class="btn btn-sm btn-success" :href='`col/analyze/${el.analId}`'>Изменить</a>
+        </span>
+    </div>
+    <br><br><br><br>
+    <div style="margin-bottom: 20px;">
+        <label style="min-width: 100%">Результат для анализа: </label><br>
+        <input type="text" v-model="newAnalResult" placeholder="Введите название результата" class="name-input" />
+        <button @click="addResult" type="button" class="btn btn-primary">Добавить</button>
+    </div>
+    <div>
+        <span class="block" v-for="(op, ind) in analResults">
+            {{op.result}}
+            <a class="btn btn-sm btn-danger" @click="removeResult(op.resId)">Удалить</a>
+        </span>
+    </div>
+    <br><br><br><br>
+    <div style="margin-bottom: 20px;">
+        <label style="min-width: 100%">Вопрос: </label><br>
+        <input type="text" v-model="newQuestion" placeholder="Введите вопрос" class="form-control" />
+        <select v-model="questionType" class="form-control question-select">
+            <option value="choose" selected>выбор варианта</option>
+            <option value="text">текстовый</option>
+            <option value="choose-text">выбор варианта и текстовый</option>
+            <option value="mult-choose">множественный выбор</option>
+        </select>
+        <button @click="addAnketa" type="button" class="btn btn-primary">Добавить</button>
+    </div>
+    <div>
+        <span class="block" v-for="(el, ind) in anketa">
+            {{el.question}}
+            <a class="btn btn-sm btn-danger" @click="removeAnketa(el.ankId)">Удалить</a>
+            <a class="btn btn-sm btn-success" :href='`col/anketa/${el.ankId}`'>Изменить</a>
+        </span>
+    </div>
+    <br><br><br><br>
+    <div style="margin-bottom: 20px; margin-top: 10px;">
+        <label style="min-width: 100%">Ответ для вопроса: </label><br>
+        <input type="text" v-model="newAnkAnswer" placeholder="Введите ответ" class="name-input" />
+        <button @click="addAnswer" type="button" class="btn btn-primary">Добавить</button>
+    </div>
+    <div>
+        <span class="block" v-for="(op, ind) in ankAnswers">
+            {{op.answer}}
+            <a class="btn btn-sm btn-danger" @click="removeAnswer(op.ansId)">Удалить</a>
+        </span>
+    </div>
+</div>

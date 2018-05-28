@@ -1,0 +1,10 @@
+.sort {
+    font-size: 18px;
+    color: #a7dbff;
+    margin-left: 3px;
+    cursor: pointer;
+}
+
+.sort:hover {
+    color: #4930b8;
+}

@@ -1,0 +1,16 @@
+<nav>
+    <ul class="pagination justify-content-center">
+        <li v-show="prevPath != 'null'" class="page-item" @click="prevPage">
+            <router-link v-if="prevPath" class="page-link" :to="prevPath">Предыдущая</router-link>
+            <div v-else class="page-link">Следующая</div>
+        </li>
+        <li v-for="pagin in pagination" class="page-item" @click="changePage(pagin.num)">
+            <router-link v-if="pagin.path" :class="{'activePagination': curPage == pagin.num}" class="page-link" :to="pagin.path">{{pagin.num}}</router-link>
+            <div v-else :class="{'activePagination': curPage == pagin.num}" class="page-link">{{pagin.num}}</div>
+        </li>
+        <li v-show="nextPath != 'null'" class="page-item" @click="nextPage">
+            <router-link v-if="nextPath" class="page-link" :to="nextPath">Следующая</router-link>
+            <div v-else class="page-link">Следующая</div>
+        </li>
+    </ul>
+</nav>

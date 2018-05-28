@@ -1,0 +1,12 @@
+<div class="col-comp">
+    <ModalBox @btnClick="modalClose" @closeEvent="modalClose" :isShow="isShowModal" :btnText="btnText" :title="modalTitle" :text="modalText"></ModalBox>
+    <h3>{{colName}}</h3>
+    <div class="block" v-for="op in colOptions">
+        {{op.name}}
+        <a class="btn btn-sm btn-danger" @click="removeOption(op.id)">Удалить</a>
+    </div>
+    <div class="block" v-for="op in colAddOp">
+        {{op.name}}
+        <a class="btn btn-sm btn-success" @click="addOption(op.id)">Добавить</a>
+    </div>
+</div>

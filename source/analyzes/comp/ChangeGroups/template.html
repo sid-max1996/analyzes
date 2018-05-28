@@ -1,0 +1,9 @@
+<div>
+    <div class="filter">
+        <label>Название: </label>
+        <input @keyup="filterChange($event)" v-model="groupName" class="input" type="text" />
+        <button @click="filterBtnClick" type="button" class="btn btn-primary fil-btn">Поиск</button>
+    </div>
+    <List :titles="titles" :data="data" :btns="btns" @groupChange="groupChange"></List>
+    <Pagination @changePage="pageChange" :curPage="curPage" :rowCount="rowCount" :allCount="allCount" :src="src"></Pagination>
+</div>

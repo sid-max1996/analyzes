@@ -1,229 +1,113 @@
-const protect = require(appRoot + "/modules/protect.js");
-const usersDb = require(appRoot + '/modules/fireburd/users');
-const session = require(appRoot + '/modules/session');
-const log = require(appRoot + '/modules/log')(module);
-const HttpError = require(appRoot + '/modules/error').HttpError;
-const AuthError = require(appRoot + '/modules/error').AuthError;
-const SessionError = require(appRoot + '/modules/error').SessionError;
-const helper = require(appRoot + '/modules/helper');
+const back = require('../../core/back');
+const log = back.log(module);
+const ShowError = back.error.ShowError;
+const crypto = back.protect.crypto;
+const access = back.protect.access;
+const session = back.session;
+const lib = require('../../core/lib');
+const check = lib.valid.check;
+const object = lib.meta.object;
+const db = back.db;
 
-const getDbPool = (obj) => {
-    return new Promise((resolve, reject) => {
-        const pool = usersDb.pool;
-        pool.get(function(err, db) {
-            if (err) {
-                log.error(err.message);
-                reject(new HttpError(500, 'Ошибка обращения к бд'));
-            }
-            resolve({ db: db, obj: obj });
-        });
-    });
-}
-
-const getAuthData = ({ db, obj }) => {
-    return new Promise((resolve, reject) => {
-        let login = obj;
-        db.query(`execute procedure get_userId_byName('${login}')`,
-            function(err, result) {
-                if (err) {
-                    log.error(err.message);
-                    reject(new HttpError(500, 'Ошибка обращения к бд'));
-                }
-                log.info(result);
-                if (!result.user_id)
-                    reject(new HttpError(406, "Пользователя с таким именем не существует"));
-                db.detach();
-                let secret = require("crypto").randomBytes(10).toString('hex');
-                let authData = {
-                    id: result.user_id,
-                    login: login,
-                    secret: secret
-                };
-                resolve(authData);
-            });
-    });
-}
-
-const getAuthAnswer = (authData) => {
-    return new Promise((resolve, reject) => {
-        session.saveAuthInfo(authData)
-            .then((auth) => {
-                log.debug(auth.toString());
-                resolve({
-                    authId: auth._id,
-                    secret: auth.secret
-                });
-            })
-            .catch((err) => reject(err));
-    });
-};
-
-exports.getAuth = function(req, res, next) {
+exports.setAuth = function(req, res, next) {
     let login = req.body.login;
     log.debug(`login = ${login}`);
-    getDbPool(login)
-        .then(getAuthData)
-        .then(getAuthAnswer)
+    db.query.one(db.query.paramOne(db.pool.anal, `execute procedure get_userId_byName(?)`, [login]))
+        .then(result => {
+            log.debug(result);
+            return new Promise((resolve, reject) => {
+                if (!result.user_id)
+                    reject(new ShowError(error.code('accept'), error.mess("exist", "Пользователя с таким именем")));
+                let secret = require("crypto").randomBytes(10).toString('hex');
+                resolve(object.create(['id', 'login', 'secret'], [result.user_id, login, secret]));
+            });
+        })
+        .then(session.saveAuthInfo)
+        .then((auth) => Promise.resolve(object.create(['authId', 'secret'], [auth._id, auth.secret])))
         .then((answer) => res.json(answer))
-        .catch((err) => {
-            log.error(err);
-            if (err instanceof SessionError) err = new HttpError(500, 'Ошибка Сессии');
-            return next(err);
-        });
+        .catch((err) => next(err));
 }
 
-const AuthCheckAndPassDecrypt = ({ auth, hashPass }) => {
+const getCryptoPass = ({ auth, hashPass }) => {
     return new Promise((resolve, reject) => {
-        if (!auth) {
-            let err = new HttpError(500, 'Ошибка Сессии')
-            log.error(err.message);
-            reject(err);
-        }
-        let password = protect.decrypt(hashPass, auth.secret);
-        log.debug(`password = ${password}`);
-        getDbPool({ auth: auth, password: password })
-            .then(({ db, obj }) => resolve({ db: db, obj: obj }))
+        let password = crypto.decrypt(hashPass, auth.secret);
+        let cryptoPass = null;
+        if (check.isNull(auth)) reject(new HttpError(400, 'Ошибка Авторизации'));
+        db.query.one(db.query.paramOne(db.pool.anal, 'execute procedure get_user_passInfo(?)', [auth.id]))
+            .then(result => {
+                cryptoPass = result.user_pass;
+                return Promise.resolve(result.user_salt)
+            })
+            .then(salt => Promise.resolve({ password: password, salt: salt }))
+            .then(crypto.getHashPassBySalt)
+            .then(hashPass => resolve({ hashPass: hashPass, passForCheck: cryptoPass, auth: auth }))
             .catch((err) => reject(err));
     });
 };
-
-const getSaltByUserId = ({ db, obj }) => {
-    return new Promise((resolve, reject) => {
-        let auth = obj.auth;
-        let password = obj.password;
-        db.query('execute procedure get_passInfo_byId(?)', [auth.id],
-            function(err, result) {
-                if (err) {
-                    log.error(err.message);
-                    reject(err);
-                }
-                let cryptoPass = result.user_pass;
-                let salt = result.user_salt;
-                log.debug(`cryptoPass = ${cryptoPass} salt ${salt}`);
-                resolve({ password: password, salt: salt, cryptoPass: cryptoPass, auth: auth });
-            });
-    });
-};
-
 
 const checkCryptoPass = ({ hashPass, passForCheck, auth }) => {
     return new Promise((resolve, reject) => {
         log.debug(`hashPass = ${hashPass}`);
-        let secret = require("crypto").randomBytes(10).toString('hex');
-        let accessString = require("crypto").randomBytes(25).toString('hex');
-        if (hashPass === passForCheck) {
-            let userData = {
-                id: auth.id,
-                login: auth.login,
-                secret: secret,
-                accessString: accessString,
-                isAuthorize: true
-            };
-            session.doAuthorize(userData)
-                .then((user) =>
-                    resolve({
-                        sessionId: user._id,
-                        accessString: user.accessString,
-                        secret: user.secret
-                    }))
-                .catch((err) => reject(new HttpError(500, 'Ошибка Сессии')));
-        } else {
-            reject(new HttpError(406, 'Неверный пароль'));
-        }
+        if (check.isEq(hashPass, passForCheck)) {
+            let secret = require("crypto").randomBytes(10).toString('hex');
+            let accessString = require("crypto").randomBytes(25).toString('hex');
+            let props = ['id', 'secret', 'accessString', 'isAuthorize'];
+            let values = [auth.id, secret, accessString, true];
+            session.createUser(object.create(props, values))
+                .then(user =>
+                    resolve(object.create(['sessionId', 'accessString', 'secret'], [user._id, user.accessString, user.secret])))
+                .catch(err => reject(err));
+        } else reject(new ShowError(error.code('accept'), 'Неверный пароль'));
     });
 }
 
-exports.getSession = function(req, res, next) {
+exports.setSession = function(req, res, next) {
     let authId = req.body.authId;
     let hashPass = req.body.hashPass;
-    let passForCheck = null;
-    let authData = null;
     log.debug(`authId = ${authId} hashPass = ${hashPass}`);
     session.getAuthById(authId)
         .then((auth) => Promise.resolve({ auth: auth, hashPass: hashPass }))
-        .then(AuthCheckAndPassDecrypt)
-        .then(getSaltByUserId)
-        .then(({ password, salt, cryptoPass, auth }) => {
-            passForCheck = cryptoPass;
-            authData = auth;
-            return Promise.resolve({ password: password, salt: salt });
-        })
-        .then(protect.getHashPassBySalt)
-        .then((hashPass) => Promise.resolve({ hashPass: hashPass, passForCheck: passForCheck, auth: authData }))
+        .then(getCryptoPass)
         .then(checkCryptoPass)
-        .then((answer) => res.json(answer))
-        .catch((err) => {
-            log.error(err);
-            if (err instanceof SessionError) err = new HttpError(500, 'Ошибка Сессии');
-            return next(err);
-        });
+        .then(answer => res.json(answer))
+        .catch((err) => next(err));
 }
 
-const isGiveAccess = ({ user, hashAccess }) => {
-    return new Promise((resolve, reject) => {
-        log.debug(`accessString = ${user.accessString} secret = ${user.secret}`);
-        log.debug(`hash = ${protect.makeHash(user.accessString, user.secret)}`);
-        let isAccess = hashAccess === protect.makeHash(user.accessString, user.secret);
-        let secret = require("crypto").randomBytes(10).toString('hex');
-        user.secret = secret;
-        user.isAccess = isAccess;
-        resolve(user);
-    });
-};
-
-exports.getAccess = function(req, res, next) {
-    let sessionId = req.body.sessionId;
-    let hashAccess = req.body.hashAccess;
+exports.setAccess = function(req, res, next) {
+    let { sessionId, hashAccess } = req.body;
     session.getUserById(sessionId)
         .then((user) => Promise.resolve({ user: user, hashAccess: hashAccess }))
-        .then(isGiveAccess)
+        .then(({ user, hashAccess }) => {
+            log.debug(`accessString = ${user.accessString} secret = ${user.secret}`);
+            log.debug(`hash = ${crypto.makeHash(user.accessString, user.secret)}`);
+            let isAccess = hashAccess === crypto.makeHash(user.accessString, user.secret);
+            let secret = require("crypto").randomBytes(10).toString('hex');
+            return Promise.resolve(object.setProps(user, ['secret', 'isAccess'], [secret, isAccess]));
+        })
         .then(session.updateUser)
         .then((user) =>
-            res.json({
-                isSuccess: user.isAccess,
-                secret: user.secret
-            }))
-        .catch((err) => {
-            log.error(err);
-            if (err instanceof SessionError) err = new HttpError(500, 'Ошибка Сессии');
-            return next(err);
-        });
+            res.json(object.create(['success', 'secret'], [user.isAccess, user.secret])))
+        .catch(err => next(err));
 }
 
 exports.doLogout = function(req, res, next) {
     let sessionId = req.body.sessionId;
-    helper.checkAccess(sessionId, true)
-        .then(() => {
-            return new Promise((resolve, reject) => {
-                session.getUserById(sessionId)
-                    .then((user) => {
-                        user.isAuthorize = false;
-                        resolve(user);
-                    })
-                    .catch((err) => reject(err));
-            });
-        })
+    access.check(sessionId, false, true)
+        .then(() => Promise.resolve(sessionId))
+        .then(getUserById)
+        .then((user) => Promise.resolve(object.setProps(user, ['isAuthorize'], [false])))
         .then(session.updateUser)
-        .then((user) => {
-            res.json({
-                isSuccess: !user.isAuthorize
-            });
-        })
+        .then(user => res.json(object.create(['success'], [!user.isAuthorize])))
         .catch((err) => next(err));
 }
 
 exports.doLogin = function(req, res, next) {
     let sessionId = req.body.sessionId;
-    session.getUserById(sessionId)
-        .then((user) => {
-            user.isAuthorize = true;
-            return Promise.resolve(user);
-        })
+    access.check(sessionId, true, true)
+        .then(() => Promise.resolve(sessionId))
+        .then(session.getUserById)
+        .then((user) => Promise.resolve(object.setProps(user, ['isAuthorize'], [true])))
         .then(session.updateUser)
-        .then((user) => {
-            res.json({
-                isSuccess: user.isAuthorize
-            });
-        })
-        .catch((err) => next(err));
+        .then(user => res.json(object.create(['success'], [user.isAuthorize])))
+        .catch(err => next(err));
 }

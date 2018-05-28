@@ -1,0 +1,90 @@
+<div id="arrow-table" class="table-responsive text-center" style="margin-bottom: 20px;">
+    <ModalBox @btnClick="btnConfirm" @closeEvent="btnCancel" :isShow="isShowModal" :btnText="btnText" :title="modalTitle" :text="modalText"></ModalBox>
+    <table ref="table" class="table table-striped table-bordered table-condensed table-hover table-sm">
+        <thead>
+            <tr class="bg-title">
+                <th>
+                    <select v-if="countList" class="row-count" @change="rowChange($event)">
+                        <option v-for="count in countList" :value="count" :selected="curCount===count">
+                            {{count}}
+                        </option>
+                    </select>
+                </th>
+                <th class="commands">
+                    <template v-for="(btn, ind) in btns"> 
+                        <i  v-if="btn.type==='btn'" :class="btn.class" @click="btnClick(ind)"></i>
+                        <router-link v-else-if="btn.type==='link'" :to="btn.link">
+                            <i :class="btn.class"></i>
+                        </router-link>
+                    </template>
+                </th>
+                <th v-for="(item, ind) in info">
+                    {{item.colTitle}}
+                    <template v-if="item.sort">
+                        <i class="fa fa-sort-amount-asc sort" @click="sort(item.colName, 'asc')"></i>
+                        <i class="fa fa-sort-amount-desc sort" @click="sort(item.colName, 'desc')"></i>
+                    </template>
+                </th>
+            </tr>
+            <tr class="bg-filter">
+                <th><input type="checkbox" @click="toggleAll"></th>
+                <th>
+                    <i v-if="opBtn" :class="opBtn.class" @click="optionsClick($event, opBtn.name)"></i>
+                    <i class="fa fa-window-close main-clear " @click="mainClearClick($event) "></i>
+                </th>
+                <th class="filter " v-for="(item, ind) in info ">
+                    <template v-if="item.colType=='select' || item.colType=='select-textarea' || item.colType=='mult-select'">
+                        <select style="margin-bottom: 5px;" :multiple="item.colType=='mult-select'">
+                            <option v-if="item.colType!='mult-select'" value=" "></option>
+                            <option v-for="option in item.options" :value="option.id">{{option.val}}</option>
+                        </select>
+                    </template>
+                    <template v-if="item.colType=='input' || item.colType=='textarea' || item.colType=='text' || item.colType=='select-textarea'">
+                        <input type="text" />
+                    </template>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="(item, index) in data" :data-id="item.id">
+                <td><input type="checkbox" class="check-sel"></td>
+                <td class="commands">
+                    <i class="fas fa-edit edit " @click="editClick($event) "></i>
+                </td>
+                <td class="col" v-for="(col, ind) in item.row">
+                    <template v-if="info[ind].colType=='text' ">
+                        {{col.text}}
+                    </template>
+                    <template v-else-if="info[ind].colType=='select'">
+                        <select>
+                            <option v-for="option in info[ind].options" :value="option.id" :selected="col.op==option.id" >
+                                {{option.val}}
+                            </option>
+                        </select>
+                    </template>
+                    <template v-else-if="info[ind].colType=='input'">
+                        <input type="text" :value="col.text" />
+                    </template>
+                    <template v-else-if="info[ind].colType=='textarea'">
+                        <textarea>{{col.text}}</textarea>
+                    </template>
+                    <template v-else-if="info[ind].colType=='select-textarea'">
+                        <select style="margin-bottom: 10px;">
+                            <option v-for="option in info[ind].options " :value="option.id" :selected="col.op==option.id" >
+                                {{option.val}}
+                            </option>
+                        </select>
+                        <textarea>{{col.text}}</textarea>
+                    </template>
+                    <template v-else-if="info[ind].colType=='mult-select'">
+                        <select multiple>
+                            <option v-for="option in info[ind].options" :value="option.id" :selected="isInOps(col.ops, option.id)" >
+                                {{option.val}}
+                            </option>
+                        </select>
+                    </template>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

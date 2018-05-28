@@ -1,0 +1,29 @@
+{
+    "port": 3000,
+    "serverAddr": "http://localhost",
+    "rootDir": "C:\\Projects\\analyzes",
+    "logPath": "C:\\Projects\\analyzes\\log\\combined.log",
+    "authConfig": {
+        "maxAuthCount": 10,
+        "hoursLimit": 1
+    },
+    "default": {
+        "maxFetch": 100
+    },
+    "mongoose": {
+        "uri": "mongodb://localhost/session",
+        "options": {
+            "socketTimeoutMS": 0,
+            "keepAlive": true,
+            "reconnectTries": 30
+        }
+    },
+    "fireburd": {
+        "maxPoolCount": 5,
+        "host": "127.0.0.1",
+        "port": 3050,
+        "lowerCaseKeys": true,
+        "role": null,
+        "pageSize": 4096
+    }
+}

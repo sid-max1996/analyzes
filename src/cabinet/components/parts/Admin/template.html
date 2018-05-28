@@ -1,5 +1,0 @@
-<div id="admin-com">
-    <ModalBox @btnClick="modalClose" @closeEvent="modalClose" :isShow="isShowModal" :btnText="btnText" :title="modalTitle" :text="modalText"></ModalBox>
-    <Table ref="tableComp" @removeEvent="removeItems" @filterEvent="filterChange" @countEvent="rowChange" @editEvent="editRow" :data="users" :info="tableInfo" :params="tableParams"></Table>
-    <Pagination @changePage="pageChange" :curPage="curPage" :rowCount="rowCount" :allCount="allCount" :src="src"></Pagination>
-</div>

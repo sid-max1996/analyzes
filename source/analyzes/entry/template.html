@@ -1,0 +1,4 @@
+<MainTemplate :menuInfo="menuInfo" :commandsList="commandsList" :roleId="roleId" :isArrows="isArrows" @commandChange="changeCommand">
+    <h3 class="group-name">Текущая группа: {{curGroup.name?curGroup.name:"не выбрана"}}</h3>
+    <router-view @changeData="changeData" @executeMethod="executeMethod"></router-view>
+</MainTemplate>

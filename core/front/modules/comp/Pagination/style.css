@@ -1,0 +1,13 @@
+.activePagination {
+    background-color: #dbe4f1;
+}
+
+.bodyDark .activePagination {
+    background-color: #7e7c7c !important;
+}
+
+.bodyDark li.page-item a,
+.bodyDark li.page-item div {
+    background-color: #484343;
+    color: white;
+}

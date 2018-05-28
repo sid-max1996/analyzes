@@ -1,5 +1,5 @@
 const cluster = require('cluster');
-const log = require('./modules/log')(module);
+const log = require('./core/back/modules/log')(module);
 
 function startWorker() {
     let worker = cluster.fork();

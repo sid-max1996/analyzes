@@ -2,12 +2,14 @@ const http = require("http");
 const path = require("path");
 const express = require("express");
 const hbs = require("express-hbs");
-const log = require('./modules/log')(module);
 const config = require('./config');
 const cookieParser = require('cookie-parser');
-const HttpError = require('./modules/error').HttpError;
 const bodyParser = require('body-parser');
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
+
+const log = require('./core/back/modules/log')(module);
+const JsonError = require('./core/back/modules/error').JsonError;
+const ShowError = require('./core/back/modules/error').ShowError;
 
 const app = express();
 
@@ -49,21 +51,23 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //обработка ошибок
 app.use(function(err, req, res, next) {
-    if (typeof err == 'number') {
-        err = new HttpError(err);
+    let isJson = false;
+    if (err instanceof JsonError) {
+        isJson = true;
+        err = err.instance;
     }
-
-    if (err instanceof HttpError) {
-        log.error(err);
-        res.sendHttpError(err);
+    log.error(err);
+    if (err instanceof ShowError) {
+        log.error('show error: ' + err.message);
+        if (isJson) res.json({ success: false, error: err.message });
+        else res.sendHttpError(err);
     } else {
-        if (app.get('env') == 'development') {
-            log.error('server error: ' + err.message);
-            express.errorHandler()(err, req, res, next);
-        } else {
-            log.error(err);
-            err = new HttpError(500);
-            res.sendHttpError(err);
+        log.error('server error: ' + err.message);
+        if (isJson) res.json({ success: false, error: 'Ошибка на сервере' });
+        else {
+            if (app.get('env') == 'development')
+                express.errorHandler()(err, req, res, next);
+            else res.sendHttpError(new HttpError(500, 'Ошибка на сервере'));
         }
     }
 });

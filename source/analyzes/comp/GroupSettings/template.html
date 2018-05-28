@@ -1,0 +1,48 @@
+<div v-show="groupSettings" id="settings-com">
+    <ModalBox @btnClick="modalConfirm" @closeEvent="modalClose" :isShow="isShowModal" :btnText="btnText" :title="modalTitle" :text="modalText"></ModalBox>
+    <div v-show="isCreator" style="margin-bottom: 20px;">
+        <input type="text" v-model="groupName" placeholder="Введите название группы" class="name-input" />
+        <button @click="changeGroupNameModal" type="button" class="btn btn-primary">Изменить название</button>
+        <button @click="removeGroupModal" type="button" class="btn btn-danger">Удалить группу</button>
+    </div>
+    <div v-show="isCreator">
+        <label>Добавить менеджера</label><br>
+        <List :titles="manTitles" :data="manData" :btns="manBtns" @addManager="addManager"></List>
+        <Pagination @changePage="manPageChange" :curPage="manCurPage" :rowCount="rowCount" :allCount="manAllCount"></Pagination>
+        <ul class="ul-block">
+            <li v-for="(manager, ind) in managers">
+                {{manager.userName}}
+                <a class="btn btn-sm btn-danger" @click="removeManager(ind)">Удалить</a>
+            </li>
+        </ul>
+    </div>
+    <div v-show="isManager">
+        <label>Добавить менеджера</label><br>
+        <List :titles="colTitles" :data="colData" :btns="colBtns" @addCollector="addCollector"></List>
+        <Pagination @changePage="colPageChange" :curPage="colCurPage" :rowCount="rowCount" :allCount="colAllCount"></Pagination>
+        <ul class="ul-block">
+            <li v-for="(collector, ind) in collectors">
+                {{collector.userName}}
+                <a class="btn btn-sm btn-danger" @click="removeCollector(ind)">Удалить</a>
+            </li>
+        </ul>
+        <label>Добавить анализ</label><br>
+        <List :titles="analTitles" :data="analData" :btns="analBtns" @addAnalyze="addAnalyzeModal"></List>
+        <Pagination @changePage="analPageChange" :curPage="analCurPage" :rowCount="rowCount" :allCount="analAllCount"></Pagination>
+        <ul class="ul-block">
+            <li v-for="(anal, ind) in analyzes">
+                {{anal.name}}
+                <a v-show="isCreator" class="btn btn-sm btn-danger" @click="removeAnalyzeModal(ind)">Удалить</a>
+            </li>
+        </ul>
+        <label>Добавить вопрос</label><br>
+        <List :titles="ankTitles" :data="ankData" :btns="ankBtns" @addAnketa="addAnketaModal"></List>
+        <Pagination @changePage="ankPageChange" :curPage="ankCurPage" :rowCount="rowCount" :allCount="ankAllCount"></Pagination>
+        <ul class="ul-block">
+            <li v-for="(ank, ind) in anketa">
+                {{ank.question}}
+                <a v-show="isCreator" class="btn btn-sm btn-danger" @click="removeAnketaModal(ind)">Удалить</a>
+            </li>
+        </ul>
+    </div>
+</div>

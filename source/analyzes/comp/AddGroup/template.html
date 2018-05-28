@@ -1,0 +1,43 @@
+<div>
+    <label>Имя группы</label>
+    <input type="text" v-model="groupName" placeholder="Введите название группы" class="form-control" /><br>
+    <label>Добавить менеджера</label><br>
+    <List :titles="titles1" :data="data1" :btns="btns1" @addManager="addManager"></List>
+    <Pagination @changePage="pageChange1" :curPage="curPage1" :rowCount="rowCount" :allCount="allCount1"></Pagination>
+    <ul class="members">
+        <li v-for="(manager, ind) in managers">
+            {{manager.userName}}
+            <a class="btn btn-sm btn-danger" @click="removeManager(ind)">Удалить</a>
+        </li>
+    </ul>
+    <label>Добавить сборщика</label><br>
+    <List :titles="titles2" :data="data2" :btns="btns2" @addCollector="addCollector"></List>
+    <Pagination @changePage="pageChange2" :curPage="curPage2" :rowCount="rowCount" :allCount="allCount2"></Pagination>
+    <ul class="members">
+        <li v-for="(collector, ind) in collectors">
+            {{collector.userName}}
+            <a class="btn btn-sm btn-danger" @click="removeCollector(ind)">Удалить</a>
+        </li>
+    </ul>
+    <label>Добавить анализ</label><br>
+    <List :titles="analTitles" :data="analData" :btns="analBtns" @addAnalyze="addAnalyze"></List>
+    <Pagination @changePage="analPageChange" :curPage="analCurPage" :rowCount="rowCount" :allCount="analAllCount"></Pagination>
+    <ul class="members">
+        <li v-for="(anal, ind) in analyzes">
+            {{anal.name}}
+            <a class="btn btn-sm btn-danger" @click="removeAnalyze(ind)">Удалить</a>
+        </li>
+    </ul>
+    <label>Добавить вопрос</label><br>
+    <List :titles="ankTitles" :data="ankData" :btns="ankBtns" @addAnketa="addAnketa"></List>
+    <Pagination @changePage="ankPageChange" :curPage="ankCurPage" :rowCount="rowCount" :allCount="ankAllCount"></Pagination>
+    <ul class="members">
+        <li v-for="(ank, ind) in anketa">
+            {{ank.question}}
+            <a class="btn btn-sm btn-danger" @click="removeAnketa(ind)">Удалить</a>
+        </li>
+    </ul>
+    <Alert :show="isAlert" :info="alertInfo" :text="alertText"></Alert>
+    <button @click="addGroup" type="button" class="btn btn-success btn-lg addButton">Добавить</button>
+    <div class="clearfix"></div>
+</div>

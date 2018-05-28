@@ -1,0 +1,4 @@
+<div class="add-analyzes-comp">
+    <ModalBox @btnClick="modalClose" @closeEvent="modalClose" :isShow="isShowModal" :btnText="btnText" :title="modalTitle" :text="modalText"></ModalBox>
+    <Table ref="tableComp" @addEvent="addItem" @removeEvent="removeItems" @saveEvent="saveItems" @editEvent="editRow" :data="tableData" :info="tableInfo" :params="tableParams"></Table>
+</div>
