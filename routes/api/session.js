@@ -9,6 +9,7 @@ const valid = back.valid;
 const verificSet = new Set();
 verificSet.add('colorScheme');
 verificSet.add('workGroup');
+verificSet.add('workSel');
 
 exports.setValue = function(req, res, next) {
     let { sessionId, name, value } = req.body;

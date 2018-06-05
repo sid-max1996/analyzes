@@ -1,0 +1,4 @@
+<MainTemplate :menuInfo="menuInfo" :commandsList="commandsList" :roleId="roleId" :isArrows="false" @commandChange="changeCommand">
+    <h3 class="sel-name">Текущая выборка: {{curSel.name?curSel.name:"не выбрана"}}</h3>
+    <router-view @changeData="changeData" @executeMethod="executeMethod"></router-view>
+</MainTemplate>

@@ -91,3 +91,11 @@ exports.has = function(arr, val) {
             return true;
     return false;
 }
+
+exports.intoTwoArray = function(arr) {
+    if (check.isUnd(arr)) return [];
+    let res = [];
+    for (let i = 0; i < arr.length; i++)
+        res.push([arr[i]]);
+    return res;
+}

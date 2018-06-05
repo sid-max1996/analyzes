@@ -1,0 +1,56 @@
+<div>
+    <ul class="nav nav-tabs">
+        <li><a data-toggle="tab" href="#panel1" class="active show">Процентное соотношение</a></li>
+        <li><a data-toggle="tab" href="#panel2">Процентное соотношение вариантов</a></li>
+        <li><a data-toggle="tab" href="#panel3">Частота аллелей</a></li>
+        <li><a data-toggle="tab" href="#panel4">Критерий Хи Квадрат</a></li>
+    </ul>
+
+    <div class="tab-content">
+        <div id="panel1" class="tab-pane fade in active show">
+            <h3>По каждому гену отдельно</h3>
+            <Cols :btn="colBtn" :cols="analInfo" @colsClick="percentCols"></Cols>
+            <div v-show="colAllCount > 0">Всего записей: {{colAllCount}}</div>
+            <div v-for="col in percentColsCalc" class="calc-res">
+                <span class="badge-primary">Название: {{col.name}} </span>
+                <span class="badge-danger">Результат: {{col.res}}</span>
+                <span class="badge-warning">Количество: {{col.count}}</span>
+                <span class="badge-success">Проценты: {{col.percent}}%</span>
+            </div>
+        </div>
+        <div id="panel2" class="tab-pane fade">
+            <h3>Одновременно по нескольким генам и анкетным данным</h3>
+            <div style="margin-bottom: 10px;">
+                <a class="btn btn-sm btn-success" @click='calcFilters'>Рассчитать</a>
+                <a class="btn btn-sm btn-warning" @click="clearFilters">Сбросить фильтры</a>
+                <span v-show="filAllCount > 0" class="badge-primary">Всего записей: {{filAllCount}}</span>
+                <span v-show="filAllCount > 0" class="badge-warning">Количество: {{filtersCalc.count}}</span>
+                <span v-show="filAllCount > 0" class="badge-success">Проценты: {{filtersCalc.percent}}%</span>
+            </div>
+            <Table ref="tableComp" @addEvent="addFilter" :info="tableInfo" :data="tableData" :params="tableParams"></Table>
+        </div>
+        <div id="panel3" class="tab-pane fade">
+            <h3>Для каждого гена отдельно</h3>
+            <Cols :btn="colBtn" :cols="analInfo" @colsClick="allelesCols"></Cols>
+            <div v-for="col in allelesColsCalc" class="calc-res">
+                <span class="badge-primary">Название: {{col.name}} </span>
+                <span class="badge-danger">Аллель: {{col.al}}</span>
+                <span class="badge-success">Частота: {{col.freq}}</span>
+            </div>
+        </div>
+        <div id="panel4" class="tab-pane fade">
+            <h3>Для двух выборок, для каждого гена отдельно</h3>
+            <span>Вторая выборка: </span>
+            <select v-model="curSel" style="margin-bottom: 10px;">
+                <option v-for="sel in selections" :value="sel">
+                    {{sel.name}}
+                </option>
+            </select>
+            <Cols :btn="colBtn" :cols="analInfo" @colsClick="xiSquereCols"></Cols>
+            <div v-for="col in xiSquereColsCalc" class="calc-res">
+                <span class="badge-primary">Название: {{col.name}} </span>
+                <span class="badge-success">Частота: {{col.xi}}</span>
+            </div>
+        </div>
+    </div>
+</div>

@@ -36,6 +36,10 @@ var schema = new Schema({
     workGroup: {
         type: Object,
         default: null
+    },
+    workSel: {
+        type: Object,
+        default: null
     }
 }, { versionKey: false });
 

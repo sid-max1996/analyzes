@@ -1,0 +1,11 @@
+<div>
+    <label>Название выборки</label>
+    <input type="text" v-model="selName" placeholder="Введите название выборки" class="form-control" /><br>
+    <label>Установить группу</label><br>
+    <List :titles="titles" :data="data" :btns="btns" @setGroup="setGroup"></List>
+    <Pagination @changePage="pageChange" :curPage="curPage" :rowCount="rowCount" :allCount="allCount"></Pagination>
+    <div style="margin-bottom: 10px;">Относится к группе: {{curGroup.groupName}}</div>
+    <Alert :show="isAlert" :info="alertInfo" :text="alertText"></Alert>
+    <button @click="addSelection" type="button" class="btn btn-success btn-lg addButton">Добавить</button>
+    <div class="clearfix"></div>
+</div>

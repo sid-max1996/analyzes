@@ -1,13 +1,13 @@
 var path = require('path')
 var webpack = require('webpack')
 
-//login cabinet analyzes
+//login cabinet analyzes statistics
 module.exports = {
-    entry: './source/cabinet/main.js',
+    entry: './source/analyzes/main.js',
     output: {
         path: path.resolve(__dirname, './public/js'),
         publicPath: '/public/js/',
-        filename: 'cabinet.js'
+        filename: 'analyzes.js'
     },
     module: {
         rules: [{

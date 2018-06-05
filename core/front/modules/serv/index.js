@@ -2,5 +2,6 @@ module.exports = {
     auth: require('./auth'),
     info: require('./info'),
     cabinet: require('./cabinet'),
-    anal: require('./analyzes')
+    anal: require('./analyzes'),
+    stat: require('./statistics')
 }

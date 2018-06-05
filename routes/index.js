@@ -3,6 +3,7 @@ module.exports = function(app) {
     app.get("/", require('./site').getStartPage);
     app.get("/cabinet*", require('./site').getCabinet);
     app.get("/analyzes*", require('./site').getAnalyzes);
+    app.get("/statistics*", require('./site').getStatistics);
 
     //SESSION PART
     const session = require('express').Router();
@@ -71,4 +72,19 @@ module.exports = function(app) {
     api.delete("/col", require('./api/analyzes').removeColumn);
     api.put("/op", require('./api/analyzes').addOption);
     api.delete("/op", require('./api/analyzes').removeOption);
+    //STATISTICS PART
+    api.post("/selections", require('./api/statistics').getSelections);
+    api.post("/selection/add/info", require('./api/statistics').getAddSelection);
+    api.put("/selection", require('./api/statistics').addSelection);
+    api.post("/selection/records/info", require('./api/statistics').getSelGroupCols);
+    api.post("/selection/items", require('./api/statistics').getSelItems);
+    api.put("/selection/items", require('./api/statistics').pushSelItems);
+    api.post("/selection/info", require('./api/statistics').getSelInfo);
+    api.delete("/selection/items", require('./api/statistics').removeSelItems);
+    api.delete("/selection", require('./api/statistics').removeSel);
+    api.post("/statistics/info", require('./api/statistics').getStatisticsInfo);
+    api.post("/statistics/calc/cols", require('./api/statistics').getStatCalcCols);
+    api.post("/statistics/calc/filters", require('./api/statistics').getStatCalcFilters);
+    api.post("/statistics/calc/alleles", require('./api/statistics').getStatCalcAlleles);
+    api.post("/statistics/calc/xisquere", require('./api/statistics').getStatCalcXiSquere);
 };

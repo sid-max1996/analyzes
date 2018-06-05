@@ -1,0 +1,12 @@
+.sel-name {
+    margin-bottom: 25px;
+    background-color: #dadada;
+    border-radius: 100px;
+    padding-bottom: 5px;
+    color: #272424;
+    text-align: center;
+}
+
+.bodyDark .sel-name {
+    background-color: #dbdadc;
+}

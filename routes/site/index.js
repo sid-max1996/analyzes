@@ -32,3 +32,14 @@ exports.getAnalyzes = async function(req, res, next) {
         )))
         .catch((err) => next(err));
 }
+
+exports.getStatistics = async function(req, res, next) {
+    let sessionId = req.cookies.sessionId;
+    access.check(sessionId, false, false)
+        .then(session.getUserById)
+        .then((user) => res.render("main.hbs", object.create(
+            array.clone(['compName', 'title', 'isDarkScheme']),
+            array.clone(['statistics', "Статистика", user.colorScheme === "dark"])
+        )))
+        .catch((err) => next(err));
+}

@@ -1,0 +1,19 @@
+.filter {
+    margin-bottom: 10px;
+}
+
+.fil-btn {
+    border-radius: 10px;
+    padding-top: 2px;
+    padding-bottom: 5px;
+    margin-left: 5px;
+}
+
+.input {
+    border-radius: 10px;
+    min-width: 200px;
+}
+
+.bodyDark input {
+    background-color: #ebe7e7 !important;
+}

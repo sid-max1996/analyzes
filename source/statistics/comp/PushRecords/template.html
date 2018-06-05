@@ -1,0 +1,9 @@
+<div class="push-select-comp">
+    <ModalBox @btnClick="confirmBtn" @closeEvent="modalClose" :isShow="isShowModal" :btnText="btnText" :title="modalTitle" :text="modalText"></ModalBox>
+    <Table ref="tableComp" @addEvent="getItems" :info="tableInfo" :params="tableParams"></Table>
+    <div style="margin-bottom: 7px;">В группе {{selInfo.groupCount}} записей</div>
+    <div style="margin-bottom: 7px;">В выборке {{selInfo.selCount}} записей</div>
+    <div style="margin-bottom: 10px;"> К добавлению {{idList.length}} записей </div>
+    <a class="btn btn-sm btn-success" @click='pushItems'>Добавить</a>
+    <a class="btn btn-sm btn-warning" @click="removeItemsConfirm">Сбросить выборку</a>
+</div>

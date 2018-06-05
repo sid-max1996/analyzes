@@ -94,7 +94,7 @@ exports.doLogout = function(req, res, next) {
     let sessionId = req.body.sessionId;
     access.check(sessionId, false, true)
         .then(() => Promise.resolve(sessionId))
-        .then(getUserById)
+        .then(session.getUserById)
         .then((user) => Promise.resolve(object.setProps(user, ['isAuthorize'], [false])))
         .then(session.updateUser)
         .then(user => res.json(object.create(['success'], [!user.isAuthorize])))

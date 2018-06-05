@@ -1,0 +1,32 @@
+.plus {
+    font-size: 18px;
+    color: #161617;
+    margin-left: 3px;
+    cursor: pointer;
+}
+
+.plus:hover {
+    color: #4930b8;
+}
+
+.nav.nav-tabs li {
+    margin-right: 25px;
+}
+
+.tab-content {
+    margin-top: 10px;
+}
+
+.calc-res span {
+    margin-right: 5px;
+}
+
+.calc-res {
+    margin-bottom: 10px;
+}
+
+.nav.nav-tabs a.active.show {
+    background-color: #ded5d5;
+    border-radius: 8px;
+    padding: 3px;
+}

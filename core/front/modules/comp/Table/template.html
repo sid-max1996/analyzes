@@ -57,7 +57,11 @@
                     </template>
                     <template v-else-if="info[ind].colType=='select'">
                         <select>
-                            <option v-for="option in info[ind].options" :value="option.id" :selected="col.op==option.id" >
+                            <option v-if="params.isEmptyOp" value=" " :selected="col.op.length===0"></option>
+                            <option v-if="params.isEmptyOp" v-for="option in info[ind].options" :value="option.id" :selected="col.op==option.id && col.op.length!==0" >
+                                {{option.val}}
+                            </option>
+                            <option v-if="!params.isEmptyOp" v-for="option in info[ind].options" :value="option.id" :selected="col.op==option.id" >
                                 {{option.val}}
                             </option>
                         </select>

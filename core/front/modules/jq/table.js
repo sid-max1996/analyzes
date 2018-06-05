@@ -23,7 +23,7 @@ exports.clearColValue = function(col) {
     let select = $(td.find("select")[0]);
     let textarea = $(td.find("textarea")[0]);
     if (check.notNull(input.val())) input.val("");
-    if (check.notNull(select.val())) select.val("");
+    if (check.notNull(select.val())) select.val(" ");
     if (check.notNull(textarea.val())) textarea.val("");
 }
 

@@ -33,7 +33,8 @@ export default {
                     countList: [],
                     curCount: 0,
                     opBtn: null,
-                    btns: []
+                    btns: [],
+                    isEmptyOp: false
                 }
             }
         }

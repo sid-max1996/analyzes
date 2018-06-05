@@ -1,0 +1,21 @@
+.save {
+    font-size: 22px;
+    color: #5b0ca3;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.save:hover {
+    color: #63bf77;
+}
+
+.plus {
+    font-size: 18px;
+    color: #161617;
+    margin-left: 3px;
+    cursor: pointer;
+}
+
+.plus:hover {
+    color: #4930b8;
+}

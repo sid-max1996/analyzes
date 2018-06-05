@@ -1,0 +1,12 @@
+<div class="table-responsive">
+    <table class="table table-bordered table-sm">
+        <thead>
+            <th v-for="(col, ind) in cols">
+                <input type="checkbox" class="ch-cols" :data-id="ind"> {{col.name}}
+            </th>
+            <th style="text-align: center; ">
+                <a class="btn " :class="btn.class " @click="btnClick(btn.event, $event) ">{{btn.title}}</a>
+            </th>
+        </thead>
+    </table>
+</div>
