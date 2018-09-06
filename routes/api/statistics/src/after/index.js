@@ -129,8 +129,8 @@ exports.getStatCalcXiSquere = (resArr) => {
         log.info('!Q!!!!!QQQQQQQQQQQQQQQq');
         console.log(res);
         for (let i = 1; i < res.length; i += 2) {
-            if (res[i][0].count !== 0)
-                xi += Math.pow((res[i][0].count - res[i + 1][0].count), 2) / res[i][0].count;
+            if (res[i + 1][0].count !== 0)
+                xi += Math.pow((res[i][0].count - res[i + 1][0].count), 2) / res[i + 1][0].count;
         }
         calc.push({ name: res[0][0].name, xi: xi })
     });

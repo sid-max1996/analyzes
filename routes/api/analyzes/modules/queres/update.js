@@ -38,7 +38,7 @@ module.exports.getQueres = function(mainId, newRow) {
             let ops = val.ops;
             if (!isNaN(ansId) && val.op.length !== 0)
                 res.push(ankTemplateOp(mainId, ankId, ansId));
-            if (check.notEmpty(text))
+            if (check.notNull(text))
                 res.push(ankTemplateText(mainId, ankId, text));
             if (check.isArr(ops))
                 ankTemplateMult(mainId, ankId, ops).forEach(el => res.push(el));
