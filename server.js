@@ -14,6 +14,8 @@ const ShowError = require('./core/back/modules/error').ShowError;
 
 const app = express();
 
+console.log('server run');
+
 //hbs helpers
 hbs.registerHelper("getServerAddr", () => {
     return `${config.get('serverAddr')}:${config.get('port')}`;
