@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const config = require('../../config');
 const log = require('../../log')(module);
 
-mongoose.connect(config.get('mongoose:uri'), config.get('mongoose:options'));
+// mongoose.connect(config.get('mongoose:uri'), config.get('mongoose:options'));
 
 // When successfully connected
 mongoose.connection.on('connected', function() {
