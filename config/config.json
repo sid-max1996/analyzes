@@ -1,6 +1,6 @@
 {
     "port": 3000,
-    "serverAddr": "http://localhost",
+    "serverAddr": "http://89.223.95.43",
     "rootDir": "C:\\Projects\\analyzes",
     "logPath": "C:\\Projects\\analyzes\\log\\combined.log",
     "authConfig": {
