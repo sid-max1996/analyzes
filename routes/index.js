@@ -1,3 +1,4 @@
+"use strict";
 module.exports = function(app) {
     //SITE PART
     app.get("/", require('./site').getStartPage);
