@@ -1,4 +1,3 @@
-"use strict";
 const back = require('../../core/back');
 const session = back.session;
 const log = back.log(module);

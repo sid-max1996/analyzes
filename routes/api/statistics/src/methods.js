@@ -1,4 +1,3 @@
-"use strict";
 const lib = require('../../../../core/lib');
 const back = require('../../../../core/back');
 const modules = require('../modules');

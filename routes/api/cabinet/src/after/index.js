@@ -1,4 +1,3 @@
-"use strict";
 const back = require('../../../../../core/back');
 const lib = require('../../../../../core/lib');
 const log = back.log(module);

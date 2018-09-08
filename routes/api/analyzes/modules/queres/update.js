@@ -1,4 +1,3 @@
-"use strict";
 const lib = require('../../../../../core/lib');
 const check = lib.valid.check;
 
